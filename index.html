@@ -1,0 +1,2858 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UNIQUE AMBIENTES | Gestão Empresarial &amp; Marcenaria</title>
+
+  <!-- Fonte Inter para máxima legibilidade em sistemas empresariais -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Configuração de cores sóbrias empresariais (Carvalho Escuro / Âmbar / Areia) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
+          },
+          colors: {
+            oak: {
+              950: '#141210',
+              900: '#1C1917',
+              800: '#292524',
+              700: '#44403C'
+            },
+            amberwood: {
+              500: '#D97706',
+              600: '#B45309',
+              700: '#92400E'
+            },
+            surface: '#F5F5F4'
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Transição suave entre abas */
+    .tab-section {
+      display: none;
+      animation: panelFadeIn 0.25s ease-out forwards;
+    }
+    .tab-section.active {
+      display: block;
+    }
+    @keyframes panelFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Barra de rolagem discreta */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #E7E5E4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #A8A29E;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #78716C;
+    }
+
+    /* Regras de impressão limpas para Ficha Técnica / Ordem de Serviço */
+    @media print {
+      @page {
+        size: A4;
+        margin: 14mm;
+      }
+      body {
+        background: #FFFFFF !important;
+        color: #1C1917 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      #app-shell,
+      .modal-backdrop,
+      #toast-container {
+        display: none !important;
+      }
+      #print-sheet {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-surface text-oak-900 font-sans antialiased selection:bg-amber-600/20 selection:text-oak-900">
+
+  <!-- ===================================================================== -->
+  <!-- SHELL PRINCIPAL DA APLICAÇÃO (OCULTO NA IMPRESSÃO)                    -->
+  <!-- ===================================================================== -->
+  <div id="app-shell" class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Overlay escuro para o menu lateral no mobile -->
+    <div id="sidebar-overlay" onclick="toggleMobileSidebar(false)" class="fixed inset-0 bg-oak-950/60 backdrop-blur-xs z-30 hidden lg:hidden"></div>
+
+    <!-- =================================================================== -->
+    <!-- SIDEBAR FIXA (DESKTOP) / DRAWER RESPONSIVO (MOBILE)                 -->
+    <!-- =================================================================== -->
+    <aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-oak-900 text-stone-200 flex flex-col border-r border-stone-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shrink-0">
+
+      <!-- Cabeçalho da Marca -->
+      <div class="px-6 py-6 border-b border-stone-800 flex items-center justify-between">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-600 to-amber-800 text-white flex items-center justify-center shadow-md shrink-0">
+            <!-- Logo geométrico de marcenaria / esquadro -->
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 20h16V4" />
+              <path d="M4 20L20 4" />
+              <path d="M9 20v-5h5" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <h1 class="text-base font-extrabold tracking-wide text-white leading-tight truncate">UNIQUE AMBIENTES</h1>
+            <p class="text-[11px] font-medium text-amber-500 tracking-wide mt-0.5 truncate">Gestão Empresarial &amp; Marcenaria</p>
+          </div>
+        </div>
+
+        <!-- Botão fechar menu no mobile -->
+        <button type="button" onclick="toggleMobileSidebar(false)" class="lg:hidden p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800" aria-label="Fechar menu">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Navegação Principal (Abas) -->
+      <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto" aria-label="Menu principal do sistema">
+        <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-2">Módulos Internos</p>
+
+        <button type="button" data-nav="dashboard" onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+          <span>Painel Geral</span>
+        </button>
+
+        <button type="button" data-nav="orcamento" onclick="switchTab('orcamento')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+          <span>Orçamento &amp; Mão de Obra</span>
+        </button>
+
+        <button type="button" data-nav="projetos" onclick="switchTab('projetos')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all justify-between">
+          <span class="flex items-center gap-3">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+            <span>Projetos &amp; Clientes</span>
+          </span>
+          <span id="sidebar-projects-count" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-stone-800 text-stone-300">0</span>
+        </button>
+
+        <button type="button" data-nav="almoxarifado" onclick="switchTab('almoxarifado')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all justify-between">
+          <span class="flex items-center gap-3">
+            <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <span>Almoxarifado &amp; Ferramentas</span>
+          </span>
+          <span id="sidebar-alerts-count" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-600 text-white">0</span>
+        </button>
+      </nav>
+
+      <!-- Rodapé Informativo do Sistema Interno -->
+      <div class="p-4 border-t border-stone-800 bg-oak-950/60">
+        <div class="rounded-xl bg-stone-800/60 border border-stone-700/70 p-3.5">
+          <div class="flex items-center gap-2 text-xs font-semibold text-stone-200">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Armazenamento Local Ativo</span>
+          </div>
+          <p class="text-[11px] text-stone-400 mt-1 leading-relaxed">
+            Sistema de uso interno exclusivo. Alterações são gravadas automaticamente no navegador.
+          </p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =================================================================== -->
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL                                          -->
+    <!-- =================================================================== -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- Barra Superior Mobile / Contextual Desktop -->
+      <header class="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <button type="button" onclick="toggleMobileSidebar(true)" class="lg:hidden p-2 rounded-xl border border-stone-200 text-oak-900 hover:bg-stone-100" aria-label="Abrir menu">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div class="min-w-0">
+            <h2 id="topbar-title" class="text-base sm:text-lg font-bold text-oak-900 truncate">Painel Geral</h2>
+            <p id="topbar-subtitle" class="text-xs text-stone-500 hidden sm:block truncate">Visão geral de produção, orçamentos e almoxarifado</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 shrink-0">
+          <button type="button" onclick="switchTab('orcamento')" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold shadow-sm transition-colors">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Novo Orçamento</span>
+          </button>
+          <button type="button" onclick="openInventoryModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-oak-900 hover:bg-oak-800 text-white text-xs font-semibold shadow-sm transition-colors">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <span class="hidden md:inline">Novo Equipamento</span>
+            <span class="md:hidden">Item</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Container das 4 Abas -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
+
+        <!-- =============================================================== -->
+        <!-- ABA 1: PAINEL GERAL (DASHBOARD)                                 -->
+        <!-- =============================================================== -->
+        <section id="tab-dashboard" class="tab-section active space-y-6">
+
+          <!-- Barra de Utilidades (Backup JSON e Reset) -->
+          <div class="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+            <div>
+              <h3 class="text-sm font-bold text-oak-900">Segurança &amp; Manutenção dos Dados</h3>
+              <p class="text-xs text-stone-500 mt-0.5">Exporte um backup em JSON regularmente ou restaure um arquivo salvo anteriormente.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button type="button" onclick="exportBackupJSON()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-oak-900 hover:bg-oak-800 text-white text-xs font-semibold transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Exportar Backup (JSON)</span>
+              </button>
+
+              <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-oak-900 border border-stone-300 text-xs font-semibold cursor-pointer transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Importar Backup</span>
+                <input type="file" id="import-backup-input" accept=".json,application/json" onchange="importBackupJSON(event)" class="hidden" />
+              </label>
+
+              <button type="button" onclick="askResetDemoData()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-red-50 text-red-700 border border-red-200 text-xs font-semibold transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                <span>Resetar Dados de Exemplo</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Cartões de Indicadores (KPIs) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
+            <!-- KPI 1 -->
+            <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">Projetos Cadastrados</span>
+                <div class="w-10 h-10 rounded-xl bg-stone-100 text-oak-900 flex items-center justify-center">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                </div>
+              </div>
+              <p id="kpi-projects-total" class="text-3xl font-extrabold text-oak-900 mt-3">0</p>
+              <p id="kpi-projects-sub" class="text-xs text-stone-500 mt-1.5 font-medium">0 Executados • 0 Em Produção</p>
+            </div>
+
+            <!-- KPI 2 -->
+            <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">Valor Total em Projetos</span>
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+              </div>
+              <p id="kpi-projects-value" class="text-2xl sm:text-3xl font-extrabold text-oak-900 mt-3 truncate">R$ 0,00</p>
+              <p id="kpi-labor-sub" class="text-xs text-amber-700 mt-1.5 font-medium">Mão de obra acumulada: R$ 0,00</p>
+            </div>
+
+            <!-- KPI 3 -->
+            <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">Ferramentas &amp; Equip.</span>
+                <div class="w-10 h-10 rounded-xl bg-stone-100 text-oak-900 flex items-center justify-center">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </div>
+              </div>
+              <p id="kpi-inventory-total" class="text-3xl font-extrabold text-oak-900 mt-3">0</p>
+              <p id="kpi-inventory-sub" class="text-xs text-stone-500 mt-1.5 font-medium">0 unidades totais em estoque</p>
+            </div>
+
+            <!-- KPI 4 -->
+            <div class="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-stone-500">Itens em Alerta</span>
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-700 flex items-center justify-center">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+              </div>
+              <p id="kpi-alerts-total" class="text-3xl font-extrabold text-red-700 mt-3">0</p>
+              <p id="kpi-alerts-sub" class="text-xs text-stone-500 mt-1.5 font-medium">Estoque baixo, manutenção ou em uso</p>
+            </div>
+          </div>
+
+          <!-- Listas Rápidas: Últimos Projetos + Últimas Movimentações -->
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+            <!-- Últimos Projetos -->
+            <div class="xl:col-span-7 bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden flex flex-col">
+              <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-oak-900">Últimos Projetos &amp; Orçamentos</h3>
+                  <p class="text-xs text-stone-500">Clientes e valores mais recentes</p>
+                </div>
+                <button type="button" onclick="switchTab('projetos')" class="text-xs font-semibold text-amber-700 hover:text-amber-800">Ver todos &rarr;</button>
+              </div>
+              <div id="dashboard-recent-projects" class="divide-y divide-stone-100 flex-1">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+
+            <!-- Últimas Movimentações do Almoxarifado -->
+            <div class="xl:col-span-5 bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden flex flex-col">
+              <div class="px-6 py-4 border-b border-stone-200 flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-bold text-oak-900">Últimas Movimentações</h3>
+                  <p class="text-xs text-stone-500">Entradas, retiradas e registros no almoxarifado</p>
+                </div>
+                <button type="button" onclick="switchTab('almoxarifado'); switchWarehouseSubtab('historico');" class="text-xs font-semibold text-amber-700 hover:text-amber-800">Histórico &rarr;</button>
+              </div>
+              <div id="dashboard-recent-movements" class="divide-y divide-stone-100 flex-1">
+                <!-- Preenchido via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- ABA 2: ORÇAMENTO & MÃO DE OBRA (CALCULADORA TÉCNICA)            -->
+        <!-- =============================================================== -->
+        <section id="tab-orcamento" class="tab-section">
+          <form id="calculator-form" onsubmit="saveCalculatorProject(event)" class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+
+            <!-- Coluna Principal Esquerda (8 colunas) -->
+            <div class="xl:col-span-8 space-y-6">
+
+              <!-- Bloco 1: Identificação do Projeto e Cliente -->
+              <div class="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-xs space-y-4">
+                <div class="flex items-center justify-between border-b border-stone-100 pb-3.5">
+                  <div>
+                    <h3 class="text-base font-bold text-oak-900">1. Identificação do Projeto &amp; Cliente</h3>
+                    <p class="text-xs text-stone-500">Dados internos para Ordem de Serviço e controle de produção.</p>
+                  </div>
+                  <span class="text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg">Uso Interno</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="calc-client" class="block text-xs font-semibold text-stone-700 mb-1.5">Nome do Cliente *</label>
+                    <input type="text" id="calc-client" required placeholder="Ex.: Ricardo Mendes / Construtora Alfa" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/15" />
+                  </div>
+                  <div>
+                    <label for="calc-title" class="block text-xs font-semibold text-stone-700 mb-1.5">Nome / Título do Projeto *</label>
+                    <input type="text" id="calc-title" required placeholder="Ex.: Cozinha Planejada com Ilha" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-600/15" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label for="calc-env" class="block text-xs font-semibold text-stone-700 mb-1.5">Ambiente</label>
+                    <select id="calc-env" onchange="recalculateBudget()" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+                      <option value="Cozinha">Cozinha</option>
+                      <option value="Dormitório">Dormitório</option>
+                      <option value="Sala/Painel">Sala / Painel</option>
+                      <option value="Escritório">Escritório</option>
+                      <option value="Banheiro">Banheiro</option>
+                      <option value="Área Gourmet">Área Gourmet</option>
+                      <option value="Comercial">Comercial</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="calc-carpenter" class="block text-xs font-semibold text-stone-700 mb-1.5">Marceneiro Responsável</label>
+                    <input type="text" id="calc-carpenter" placeholder="Ex.: João Carlos" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+
+                  <div>
+                    <label for="calc-deadline" class="block text-xs font-semibold text-stone-700 mb-1.5">Prazo (dias úteis)</label>
+                    <input type="number" id="calc-deadline" min="1" step="1" value="25" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+
+                  <div>
+                    <label for="calc-status" class="block text-xs font-semibold text-stone-700 mb-1.5">Status Inicial</label>
+                    <select id="calc-status" onchange="recalculateBudget()" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+                      <option value="Orçamento">Orçamento</option>
+                      <option value="Aprovado">Aprovado</option>
+                      <option value="Em Produção">Em Produção</option>
+                      <option value="Montagem">Montagem</option>
+                      <option value="Executado">Executado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bloco 2: Metragem e Materiais -->
+              <div class="bg-white rounded-2xl border border-stone-200 p-5 sm:p-6 shadow-xs space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-3.5">
+                  <div>
+                    <h3 class="text-base font-bold text-oak-900">2. Metragem &amp; Materiais (MDF / Insumos)</h3>
+                    <p class="text-xs text-stone-500">Calcule pelas dimensões (Largura x Altura) ou informe a metragem manual diretamente.</p>
+                  </div>
+                  <!-- Seletor de Modo de Metragem -->
+                  <div class="inline-flex rounded-xl bg-stone-100 p-1 border border-stone-200 self-start">
+                    <button type="button" id="btn-area-dim" onclick="setAreaMode('dimensoes')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-oak-900 text-white">Largura × Altura</button>
+                    <button type="button" id="btn-area-manual" onclick="setAreaMode('manual')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-oak-900">Metragem Manual</button>
+                  </div>
+                </div>
+
+                <!-- Campos de Dimensão (Largura x Altura) -->
+                <div id="area-mode-dimensoes" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                  <div>
+                    <label for="calc-width" class="block text-xs font-semibold text-stone-700 mb-1.5">Largura (metros)</label>
+                    <input type="number" id="calc-width" min="0" step="0.01" value="3.50" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+                  <div>
+                    <label for="calc-height" class="block text-xs font-semibold text-stone-700 mb-1.5">Altura (metros)</label>
+                    <input type="number" id="calc-height" min="0" step="0.01" value="2.40" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+                  <div class="bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5">
+                    <span class="block text-[11px] font-semibold uppercase text-stone-500">Metragem Calculada</span>
+                    <span id="calc-area-computed" class="text-lg font-extrabold text-amber-700">8,40 m²</span>
+                  </div>
+                </div>
+
+                <!-- Campos de Metragem Manual -->
+                <div id="area-mode-manual" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="calc-manual-area" class="block text-xs font-semibold text-stone-700 mb-1.5">Metragem Direta</label>
+                    <input type="number" id="calc-manual-area" min="0" step="0.01" value="8.40" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+                  <div>
+                    <label for="calc-manual-unit" class="block text-xs font-semibold text-stone-700 mb-1.5">Unidade de Medida</label>
+                    <select id="calc-manual-unit" onchange="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+                      <option value="m²">Metros Quadrados (m²)</option>
+                      <option value="m linear">Metros Lineares (m)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Valor do MDF por m² -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-stone-100">
+                  <div>
+                    <label for="calc-mdf-rate" class="block text-xs font-semibold text-stone-700 mb-1.5">Valor Base do Material / MDF por <span id="label-rate-unit">m²</span> (R$)</label>
+                    <input type="number" id="calc-mdf-rate" min="0" step="0.01" value="520.00" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                    <p class="text-[11px] text-stone-400 mt-1">Deixe em R$ 0,00 se preferir lançar apenas os itens avulsos na tabela abaixo.</p>
+                  </div>
+                  <div class="bg-stone-50 rounded-xl border border-stone-200 p-3.5 flex flex-col justify-center">
+                    <span class="text-[11px] font-semibold uppercase text-stone-500">Subtotal Material Base</span>
+                    <span id="calc-base-material-subtotal" class="text-lg font-bold text-oak-900 mt-0.5">R$ 4.368,00</span>
+                  </div>
+                </div>
+
+                <!-- Tabela Dinâmica de Itens Extras (Chapas, Ferragens, LED, etc.) -->
+                <div class="pt-2 border-t border-stone-100 space-y-3">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h4 class="text-sm font-bold text-oak-900">Itens Extras &amp; Insumos (Chapas, Ferragens, Vidros, LED)</h4>
+                      <p class="text-xs text-stone-500">Adicione ferragens específicas, corrediças, dobradiças, fitas de borda ou chapas extras.</p>
+                    </div>
+                    <button type="button" onclick="addExtraMaterialRow()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-oak-900 border border-stone-300 text-xs font-semibold transition-colors self-start">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      <span>Adicionar Item</span>
+                    </button>
+                  </div>
+
+                  <div class="overflow-x-auto border border-stone-200 rounded-xl">
+                    <table class="w-full text-left text-xs">
+                      <thead class="bg-stone-50 text-stone-600 uppercase text-[11px] border-b border-stone-200">
+                        <tr>
+                          <th class="px-3 py-2.5 font-semibold">Descrição do Item / Insumo</th>
+                          <th class="px-3 py-2.5 font-semibold w-24">Qtd.</th>
+                          <th class="px-3 py-2.5 font-semibold w-32">Valor Unit. (R$)</th>
+                          <th class="px-3 py-2.5 font-semibold w-28 text-right">Subtotal</th>
+                          <th class="px-2 py-2.5 w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody id="extra-materials-tbody" class="divide-y divide-stone-100">
+                        <!-- Linhas adicionadas dinamicamente via JS -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bloco 3: MÃO DE OBRA DO MARCENEIRO (DEDICADO) -->
+              <div class="bg-white rounded-2xl border-2 border-amber-600/30 p-5 sm:p-6 shadow-xs space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-3.5">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div>
+                      <h3 class="text-base font-bold text-oak-900">3. Mão de Obra do Marceneiro &amp; Custos Operacionais</h3>
+                      <p class="text-xs text-stone-500">Defina a forma de remuneração da mão de obra técnica, montagem e margem empresarial.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Seleção do Modo de Cálculo da Mão de Obra -->
+                <div>
+                  <label class="block text-xs font-semibold text-stone-700 mb-2">Forma de Cálculo da Mão de Obra</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button type="button" data-labor-mode="m2" onclick="setLaborMode('m2')" class="labor-mode-btn p-3 rounded-xl border text-left transition-all">
+                      <span class="block text-xs font-bold">Por Metragem</span>
+                      <span class="block text-[11px] opacity-75 mt-0.5">R$/m² × metragem</span>
+                    </button>
+                    <button type="button" data-labor-mode="diaria" onclick="setLaborMode('diaria')" class="labor-mode-btn p-3 rounded-xl border text-left transition-all">
+                      <span class="block text-xs font-bold">Por Diária</span>
+                      <span class="block text-[11px] opacity-75 mt-0.5">Qtd. dias × diária</span>
+                    </button>
+                    <button type="button" data-labor-mode="fixo" onclick="setLaborMode('fixo')" class="labor-mode-btn p-3 rounded-xl border text-left transition-all">
+                      <span class="block text-xs font-bold">Valor Fixo</span>
+                      <span class="block text-[11px] opacity-75 mt-0.5">Valor fechado (R$)</span>
+                    </button>
+                    <button type="button" data-labor-mode="percentual" onclick="setLaborMode('percentual')" class="labor-mode-btn p-3 rounded-xl border text-left transition-all">
+                      <span class="block text-xs font-bold">% s/ Materiais</span>
+                      <span class="block text-[11px] opacity-75 mt-0.5">Percentual dos insumos</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Inputs Dinâmicos conforme o Modo de Mão de Obra -->
+                <div class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4">
+                  <!-- Modo 1: Por m² -->
+                  <div id="labor-input-m2" class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    <div>
+                      <label for="calc-labor-m2-rate" class="block text-xs font-semibold text-oak-900 mb-1.5">Valor da Mão de Obra por <span class="labor-unit-ref">m²</span> (R$)</label>
+                      <input type="number" id="calc-labor-m2-rate" min="0" step="0.01" value="320.00" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm font-semibold focus:outline-none focus:border-amber-600" />
+                    </div>
+                    <div class="text-xs text-stone-600">
+                      Cálculo: <strong id="labor-m2-formula" class="text-oak-900">8,40 m² × R$ 320,00</strong>
+                    </div>
+                  </div>
+
+                  <!-- Modo 2: Por Diária -->
+                  <div id="labor-input-diaria" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label for="calc-labor-days" class="block text-xs font-semibold text-oak-900 mb-1.5">Quantidade de Dias Trabalhados</label>
+                      <input type="number" id="calc-labor-days" min="0.5" step="0.5" value="8" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm font-semibold focus:outline-none focus:border-amber-600" />
+                    </div>
+                    <div>
+                      <label for="calc-labor-day-rate" class="block text-xs font-semibold text-oak-900 mb-1.5">Valor da Diária do Marceneiro (R$)</label>
+                      <input type="number" id="calc-labor-day-rate" min="0" step="0.01" value="350.00" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm font-semibold focus:outline-none focus:border-amber-600" />
+                    </div>
+                  </div>
+
+                  <!-- Modo 3: Valor Fixo -->
+                  <div id="labor-input-fixo" class="hidden max-w-sm">
+                    <label for="calc-labor-fixed" class="block text-xs font-semibold text-oak-900 mb-1.5">Valor Fixo da Mão de Obra (R$)</label>
+                    <input type="number" id="calc-labor-fixed" min="0" step="0.01" value="2800.00" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm font-semibold focus:outline-none focus:border-amber-600" />
+                  </div>
+
+                  <!-- Modo 4: Percentual sobre materiais -->
+                  <div id="labor-input-percentual" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    <div>
+                      <label for="calc-labor-percent" class="block text-xs font-semibold text-oak-900 mb-1.5">Percentual sobre Total de Materiais (%)</label>
+                      <input type="number" id="calc-labor-percent" min="0" step="1" value="65" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-white text-sm font-semibold focus:outline-none focus:border-amber-600" />
+                    </div>
+                    <div class="text-xs text-stone-600">
+                      Aplicado sobre a soma de MDF base + itens extras.
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Montagem / Frete + Margem Empresarial -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-stone-100">
+                  <div>
+                    <label for="calc-shipping" class="block text-xs font-semibold text-stone-700 mb-1.5">Custo de Montagem / Frete (R$)</label>
+                    <input type="number" id="calc-shipping" min="0" step="0.01" value="450.00" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+                  <div>
+                    <label for="calc-margin" class="block text-xs font-semibold text-stone-700 mb-1.5">Margem de Lucro / Despesas Fixas (%)</label>
+                    <input type="number" id="calc-margin" min="0" step="0.5" value="20" oninput="recalculateBudget()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                  </div>
+                </div>
+
+                <!-- Observações Técnicas -->
+                <div>
+                  <label for="calc-notes" class="block text-xs font-semibold text-stone-700 mb-1.5">Observações Técnicas / Especificações de Produção</label>
+                  <textarea id="calc-notes" rows="3" placeholder="Ex.: MDF Freijó 18mm externo, Branco TX interno, corrediças ocultas com amortecedor, perfil LED 3000K..." class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600 resize-none"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Coluna Direita Fixa: Resumo Financeiro em Tempo Real (4 colunas) -->
+            <div class="xl:col-span-4 xl:sticky xl:top-20 space-y-4">
+              <div class="bg-oak-900 text-white rounded-2xl p-6 shadow-lg border border-stone-800 space-y-5">
+                <div class="flex items-center justify-between border-b border-stone-800 pb-4">
+                  <div>
+                    <span class="text-[11px] font-bold uppercase tracking-widest text-amber-500">Resumo Financeiro</span>
+                    <h3 class="text-lg font-bold text-white mt-0.5">Fechamento do Orçamento</h3>
+                  </div>
+                  <div class="text-right">
+                    <span class="block text-[11px] text-stone-400">Metragem</span>
+                    <span id="sum-area-badge" class="text-sm font-bold text-amber-400">8,40 m²</span>
+                  </div>
+                </div>
+
+                <!-- Discriminação de Valores -->
+                <div class="space-y-3 text-sm">
+                  <div class="flex items-center justify-between text-stone-300">
+                    <span>Materiais &amp; Insumos</span>
+                    <span id="sum-materials" class="font-semibold text-white">R$ 0,00</span>
+                  </div>
+
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-amber-600/20 border border-amber-500/40">
+                    <div>
+                      <span class="block font-bold text-amber-400">Mão de Obra do Marceneiro</span>
+                      <span id="sum-labor-detail" class="block text-[11px] text-stone-300">Modo: Por m²</span>
+                    </div>
+                    <span id="sum-labor" class="font-extrabold text-amber-400 text-base">R$ 0,00</span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-stone-300">
+                    <span>Montagem / Frete</span>
+                    <span id="sum-shipping" class="font-semibold text-white">R$ 0,00</span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-stone-300">
+                    <span>Margem / Despesas (<span id="sum-margin-pct">20</span>%)</span>
+                    <span id="sum-margin" class="font-semibold text-white">R$ 0,00</span>
+                  </div>
+                </div>
+
+                <!-- Valor Total -->
+                <div class="pt-4 border-t border-stone-700">
+                  <span class="block text-xs uppercase tracking-wider text-stone-400">Valor Total do Projeto</span>
+                  <p id="sum-grand-total" class="text-3xl font-extrabold text-white mt-1 tracking-tight">R$ 0,00</p>
+                  <p id="sum-unit-metric" class="text-xs text-stone-400 mt-1">Custo médio: R$ 0,00 / m²</p>
+                </div>
+
+                <!-- Ações do Orçamento -->
+                <div class="space-y-2.5 pt-2">
+                  <button type="submit" class="w-full py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm shadow-sm transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Salvar na Aba de Projetos</span>
+                  </button>
+
+                  <button type="button" onclick="printCurrentCalculator()" class="w-full py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-100 border border-stone-700 font-semibold text-xs transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span>Imprimir Ficha / OS</span>
+                  </button>
+
+                  <button type="button" onclick="resetCalculatorForm()" class="w-full py-2 px-4 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800/70 font-medium text-xs transition-colors">
+                    Limpar Campos
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- ABA 3: PROJETOS & CLIENTES                                      -->
+        <!-- =============================================================== -->
+        <section id="tab-projetos" class="tab-section space-y-5">
+
+          <!-- Barra de Filtros e Botão Novo Projeto -->
+          <div class="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-xs space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <!-- Busca -->
+              <div class="relative flex-1 max-w-md">
+                <svg class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="projects-search" oninput="renderProjects()" placeholder="Buscar por nome do cliente, projeto ou marceneiro..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+              </div>
+
+              <!-- Ações -->
+              <div class="flex flex-wrap items-center gap-2.5">
+                <button type="button" onclick="openProjectEditModal(null)" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-oak-900 hover:bg-oak-800 text-white text-xs font-semibold transition-colors">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>+ Novo Projeto</span>
+                </button>
+                <button type="button" onclick="switchTab('orcamento')" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition-colors">
+                  <span>Abrir Calculadora</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Filtros por Status -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
+              <button type="button" data-pstatus="Todos" onclick="setProjectStatusFilter('Todos')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Todos</button>
+              <button type="button" data-pstatus="Orçamento" onclick="setProjectStatusFilter('Orçamento')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Orçamento</button>
+              <button type="button" data-pstatus="Aprovado" onclick="setProjectStatusFilter('Aprovado')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Aprovado</button>
+              <button type="button" data-pstatus="Em Produção" onclick="setProjectStatusFilter('Em Produção')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Em Produção</button>
+              <button type="button" data-pstatus="Montagem" onclick="setProjectStatusFilter('Montagem')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Montagem</button>
+              <button type="button" data-pstatus="Executado" onclick="setProjectStatusFilter('Executado')" class="pstatus-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Executado</button>
+            </div>
+          </div>
+
+          <!-- Grid de Projetos -->
+          <div id="projects-container" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Cards gerados dinamicamente via JS -->
+          </div>
+        </section>
+
+        <!-- =============================================================== -->
+        <!-- ABA 4: ALMOXARIFADO & FERRAMENTAS                               -->
+        <!-- =============================================================== -->
+        <section id="tab-almoxarifado" class="tab-section space-y-5">
+
+          <!-- Cabeçalho com Sub-abas (Estoque vs Histórico) -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="inline-flex bg-white p-1.5 rounded-2xl border border-stone-200 shadow-xs self-start">
+              <button type="button" id="subtab-btn-itens" onclick="switchWarehouseSubtab('itens')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-oak-900 text-white">
+                Equipamentos &amp; Estoque
+              </button>
+              <button type="button" id="subtab-btn-historico" onclick="switchWarehouseSubtab('historico')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-stone-600 hover:text-oak-900">
+                Histórico de Movimentações
+              </button>
+            </div>
+
+            <button type="button" onclick="openInventoryModal()" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold shadow-sm transition-colors">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>+ Cadastrar Equipamento / Item</span>
+            </button>
+          </div>
+
+          <!-- SUB-ABA A: LISTA DE EQUIPAMENTOS & ESTOQUE -->
+          <div id="warehouse-view-itens" class="space-y-4">
+            <!-- Filtros e Busca -->
+            <div class="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-xs space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                <div class="md:col-span-8 relative">
+                  <svg class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input type="text" id="inv-search" oninput="renderInventory()" placeholder="Buscar por nome, código (UNQ-...), marca/modelo ou responsável..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+                </div>
+                <div class="md:col-span-4">
+                  <select id="inv-status-filter" onchange="renderInventory()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+                    <option value="Todos">Status: Todos</option>
+                    <option value="Disponível">Disponível</option>
+                    <option value="Em Uso / Em Obra">Em Uso / Em Obra</option>
+                    <option value="Em Manutenção">Em Manutenção</option>
+                    <option value="Estoque Baixo">Alerta: Estoque Baixo</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Sub-filtros de Categoria -->
+              <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-stone-100">
+                <button type="button" data-icat="Todos" onclick="setInventoryCategory('Todos')" class="icat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Todos os Itens</button>
+                <button type="button" data-icat="Ferramenta Elétrica" onclick="setInventoryCategory('Ferramenta Elétrica')" class="icat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Ferramentas Elétricas</button>
+                <button type="button" data-icat="Ferramenta Manual" onclick="setInventoryCategory('Ferramenta Manual')" class="icat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Ferramentas Manuais</button>
+                <button type="button" data-icat="Máquina/Equipamento" onclick="setInventoryCategory('Máquina/Equipamento')" class="icat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Máquinas / Equipamentos</button>
+                <button type="button" data-icat="Insumos & Ferragens" onclick="setInventoryCategory('Insumos & Ferragens')" class="icat-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all">Insumos &amp; Ferragens</button>
+              </div>
+            </div>
+
+            <!-- Tabela Responsiva de Estoque e Ferramentas -->
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-stone-50 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500">
+                      <th class="px-4 py-3.5 font-bold">Código / Item</th>
+                      <th class="px-4 py-3.5 font-bold">Categoria</th>
+                      <th class="px-4 py-3.5 font-bold">Qtd. / Mín.</th>
+                      <th class="px-4 py-3.5 font-bold">Status</th>
+                      <th class="px-4 py-3.5 font-bold">Localização / Responsável</th>
+                      <th class="px-4 py-3.5 font-bold text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventory-tbody" class="divide-y divide-stone-100 text-sm">
+                    <!-- Linhas geradas via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-ABA B: HISTÓRICO DE MOVIMENTAÇÕES -->
+          <div id="warehouse-view-historico" class="hidden space-y-4">
+            <div class="bg-white rounded-2xl border border-stone-200 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row gap-3">
+              <div class="relative flex-1">
+                <svg class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="mov-search" oninput="renderMovements()" placeholder="Filtrar histórico por item, código, responsável ou observação..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+              </div>
+              <select id="mov-type-filter" onchange="renderMovements()" class="sm:w-52 px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+                <option value="Todos">Tipo: Todos</option>
+                <option value="Saída/Retirada">Saída / Retirada</option>
+                <option value="Entrada">Entrada / Devolução</option>
+                <option value="Cadastro">Cadastro</option>
+                <option value="Edição">Edição</option>
+                <option value="Exclusão">Exclusão</option>
+              </select>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-stone-200 shadow-xs overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-stone-50 border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500">
+                      <th class="px-4 py-3.5 font-bold">Data / Hora</th>
+                      <th class="px-4 py-3.5 font-bold">Código</th>
+                      <th class="px-4 py-3.5 font-bold">Equipamento / Item</th>
+                      <th class="px-4 py-3.5 font-bold">Tipo</th>
+                      <th class="px-4 py-3.5 font-bold">Qtd.</th>
+                      <th class="px-4 py-3.5 font-bold">Responsável / Destino</th>
+                      <th class="px-4 py-3.5 font-bold">Observação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="movements-tbody" class="divide-y divide-stone-100 text-xs sm:text-sm">
+                    <!-- Histórico gerado via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- ÁREA EXCLUSIVA DE IMPRESSÃO (FICHA TÉCNICA / ORDEM DE SERVIÇO)        -->
+  <!-- ===================================================================== -->
+  <div id="print-sheet" class="hidden max-w-4xl mx-auto p-4 text-oak-900 bg-white">
+    <!-- Conteúdo preenchido dinamicamente antes do window.print() -->
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: VISUALIZAR FICHA DO PROJETO / IMPRIMIR                       -->
+  <!-- ===================================================================== -->
+  <div id="modal-project-view" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-4 bg-oak-950/70 backdrop-blur-xs" role="dialog" aria-modal="true">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200">
+      <div class="px-6 py-4 bg-oak-900 text-white flex items-center justify-between sticky top-0">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-amber-400 font-bold">Ficha Técnica do Projeto</span>
+          <h3 id="pv-title" class="text-lg font-bold"></h3>
+        </div>
+        <button type="button" onclick="closeModal('modal-project-view')" class="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="pv-body" class="p-6 space-y-5 text-sm">
+        <!-- Preenchido via JS -->
+      </div>
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex flex-wrap justify-end gap-2.5">
+        <button type="button" onclick="closeModal('modal-project-view')" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100">Fechar</button>
+        <button type="button" onclick="printViewedProject()" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-oak-900 hover:bg-oak-800 text-white text-xs font-semibold">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          <span>Imprimir Ficha / OS</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: CADASTRAR / EDITAR PROJETO                                   -->
+  <!-- ===================================================================== -->
+  <div id="modal-project-edit" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-4 bg-oak-950/70 backdrop-blur-xs" role="dialog" aria-modal="true">
+    <form onsubmit="saveProjectModal(event)" class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200">
+      <div class="px-6 py-4 bg-oak-900 text-white flex items-center justify-between sticky top-0">
+        <h3 id="pe-modal-heading" class="text-base font-bold">Editar Projeto</h3>
+        <button type="button" onclick="closeModal('modal-project-edit')" class="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="pe-id" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="pe-client" class="block text-xs font-semibold text-stone-700 mb-1">Nome do Cliente *</label>
+            <input type="text" id="pe-client" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="pe-title" class="block text-xs font-semibold text-stone-700 mb-1">Título do Projeto *</label>
+            <input type="text" id="pe-title" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="pe-env" class="block text-xs font-semibold text-stone-700 mb-1">Ambiente</label>
+            <select id="pe-env" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="Cozinha">Cozinha</option>
+              <option value="Dormitório">Dormitório</option>
+              <option value="Sala/Painel">Sala / Painel</option>
+              <option value="Escritório">Escritório</option>
+              <option value="Banheiro">Banheiro</option>
+              <option value="Área Gourmet">Área Gourmet</option>
+              <option value="Comercial">Comercial</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label for="pe-carpenter" class="block text-xs font-semibold text-stone-700 mb-1">Marceneiro Responsável</label>
+            <input type="text" id="pe-carpenter" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="pe-status" class="block text-xs font-semibold text-stone-700 mb-1">Status</label>
+            <select id="pe-status" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="Orçamento">Orçamento</option>
+              <option value="Aprovado">Aprovado</option>
+              <option value="Em Produção">Em Produção</option>
+              <option value="Montagem">Montagem</option>
+              <option value="Executado">Executado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <label for="pe-area" class="block text-xs font-semibold text-stone-700 mb-1">Metragem</label>
+            <input type="number" id="pe-area" min="0" step="0.01" required class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="pe-unit" class="block text-xs font-semibold text-stone-700 mb-1">Unidade</label>
+            <select id="pe-unit" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="m²">m²</option>
+              <option value="m linear">m linear</option>
+            </select>
+          </div>
+          <div>
+            <label for="pe-deadline" class="block text-xs font-semibold text-stone-700 mb-1">Prazo (dias)</label>
+            <input type="number" id="pe-deadline" min="1" step="1" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="pe-materials" class="block text-xs font-semibold text-stone-700 mb-1">Materiais (R$)</label>
+            <input type="number" id="pe-materials" min="0" step="0.01" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="pe-labor" class="block text-xs font-semibold text-amber-800 mb-1">Mão de Obra do Marceneiro (R$) *</label>
+            <input type="number" id="pe-labor" min="0" step="0.01" required class="w-full px-3.5 py-2.5 rounded-xl border border-amber-300 bg-amber-50/40 text-sm font-semibold focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="pe-total" class="block text-xs font-semibold text-stone-700 mb-1">Valor Total do Projeto (R$) *</label>
+            <input type="number" id="pe-total" min="0" step="0.01" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-bold focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="pe-notes" class="block text-xs font-semibold text-stone-700 mb-1">Observações Técnicas</label>
+          <textarea id="pe-notes" rows="3" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-2.5">
+        <button type="button" onclick="closeModal('modal-project-edit')" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100">Cancelar</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 3: CADASTRAR / EDITAR EQUIPAMENTO OU ITEM DO ALMOXARIFADO       -->
+  <!-- ===================================================================== -->
+  <div id="modal-inventory" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-4 bg-oak-950/70 backdrop-blur-xs" role="dialog" aria-modal="true">
+    <form onsubmit="saveInventoryItem(event)" class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-stone-200">
+      <div class="px-6 py-4 bg-oak-900 text-white flex items-center justify-between sticky top-0">
+        <h3 id="inv-modal-heading" class="text-base font-bold">Cadastrar Equipamento / Item</h3>
+        <button type="button" onclick="closeModal('modal-inventory')" class="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="inv-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="inv-code" class="block text-xs font-semibold text-stone-700 mb-1">Código / Patrimônio</label>
+            <input type="text" id="inv-code" placeholder="Auto (ex: UNQ-011)" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm uppercase focus:outline-none focus:border-amber-600" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="inv-name" class="block text-xs font-semibold text-stone-700 mb-1">Nome do Equipamento / Ferramenta / Insumo *</label>
+            <input type="text" id="inv-name" required placeholder="Ex.: Parafusadeira de Impacto 18V" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="inv-category" class="block text-xs font-semibold text-stone-700 mb-1">Categoria *</label>
+            <select id="inv-category" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="Ferramenta Elétrica">Ferramenta Elétrica</option>
+              <option value="Ferramenta Manual">Ferramenta Manual</option>
+              <option value="Máquina/Equipamento">Máquina/Equipamento</option>
+              <option value="Insumos & Ferragens">Insumos &amp; Ferragens</option>
+            </select>
+          </div>
+          <div>
+            <label for="inv-brand" class="block text-xs font-semibold text-stone-700 mb-1">Marca / Modelo</label>
+            <input type="text" id="inv-brand" placeholder="Ex.: Makita DHP484 / Bosch GKS" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div>
+            <label for="inv-qty" class="block text-xs font-semibold text-stone-700 mb-1">Qtd. Atual *</label>
+            <input type="number" id="inv-qty" min="0" step="1" required value="1" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="inv-min-qty" class="block text-xs font-semibold text-stone-700 mb-1">Qtd. Mínima *</label>
+            <input type="number" id="inv-min-qty" min="0" step="1" required value="1" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="inv-unit" class="block text-xs font-semibold text-stone-700 mb-1">Unidade</label>
+            <select id="inv-unit" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="Un">Un</option>
+              <option value="Cx">Cx</option>
+              <option value="Pct">Pct</option>
+              <option value="Chapa">Chapa</option>
+              <option value="Metro">Metro</option>
+              <option value="Litro">Litro</option>
+              <option value="Par">Par</option>
+            </select>
+          </div>
+          <div>
+            <label for="inv-status" class="block text-xs font-semibold text-stone-700 mb-1">Status</label>
+            <select id="inv-status" class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+              <option value="Disponível">Disponível</option>
+              <option value="Em Uso / Em Obra">Em Uso / Em Obra</option>
+              <option value="Em Manutenção">Em Manutenção</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="inv-location" class="block text-xs font-semibold text-stone-700 mb-1">Localização / Obra ou Responsável Atual</label>
+            <input type="text" id="inv-location" placeholder="Ex.: Bancada 02 / Obra Jardins - João" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+          <div>
+            <label for="inv-acq-date" class="block text-xs font-semibold text-stone-700 mb-1">Data de Aquisição</label>
+            <input type="date" id="inv-acq-date" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+          </div>
+        </div>
+
+        <div>
+          <label for="inv-notes" class="block text-xs font-semibold text-stone-700 mb-1">Observações Técnicas / Manutenção</label>
+          <textarea id="inv-notes" rows="2" placeholder="Voltagem, número de série, revisão periódica ou detalhes..." class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600 resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-2.5">
+        <button type="button" onclick="closeModal('modal-inventory')" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100">Cancelar</button>
+        <button type="submit" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold">Salvar Registro</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 4: MOVIMENTAÇÃO RÁPIDA (RETIRADA - / DEVOLUÇÃO-ENTRADA +)       -->
+  <!-- ===================================================================== -->
+  <div id="modal-movement" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-4 bg-oak-950/70 backdrop-blur-xs" role="dialog" aria-modal="true">
+    <form onsubmit="confirmMovement(event)" class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-stone-200 overflow-hidden">
+      <div id="mov-modal-header" class="px-6 py-4 bg-oak-900 text-white flex items-center justify-between">
+        <div>
+          <span id="mov-modal-badge" class="text-[11px] uppercase tracking-wider font-bold text-amber-400">Movimentação</span>
+          <h3 id="mov-modal-title" class="text-base font-bold">Registrar Saída / Entrada</h3>
+        </div>
+        <button type="button" onclick="closeModal('modal-movement')" class="p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <input type="hidden" id="mov-item-id" />
+        <input type="hidden" id="mov-direction" />
+
+        <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+          <p id="mov-item-label" class="text-sm font-bold text-oak-900"></p>
+          <p id="mov-item-stock" class="text-xs text-stone-500 mt-0.5"></p>
+        </div>
+
+        <div>
+          <label for="mov-qty" class="block text-xs font-semibold text-stone-700 mb-1">Quantidade *</label>
+          <input type="number" id="mov-qty" min="1" step="1" value="1" required class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm font-bold focus:outline-none focus:border-amber-600" />
+        </div>
+
+        <div>
+          <label for="mov-responsible" class="block text-xs font-semibold text-stone-700 mb-1">Marceneiro / Responsável *</label>
+          <input type="text" id="mov-responsible" required placeholder="Ex.: Carlos Alberto" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+        </div>
+
+        <div>
+          <label for="mov-destination" class="block text-xs font-semibold text-stone-700 mb-1">Destino / Obra ou Localização</label>
+          <input type="text" id="mov-destination" placeholder="Ex.: Obra Residencial Jardins / Almoxarifado Central" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+        </div>
+
+        <div>
+          <label for="mov-new-status" class="block text-xs font-semibold text-stone-700 mb-1">Atualizar Status do Item</label>
+          <select id="mov-new-status" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm bg-white focus:outline-none focus:border-amber-600">
+            <option value="Disponível">Disponível</option>
+            <option value="Em Uso / Em Obra">Em Uso / Em Obra</option>
+            <option value="Em Manutenção">Em Manutenção</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="mov-note" class="block text-xs font-semibold text-stone-700 mb-1">Observação</label>
+          <input type="text" id="mov-note" placeholder="Motivo da retirada, estado da devolução, compra..." class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-sm focus:outline-none focus:border-amber-600" />
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-2.5">
+        <button type="button" onclick="closeModal('modal-movement')" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100">Cancelar</button>
+        <button type="submit" id="mov-submit-btn" class="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold">Confirmar</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 5: CONFIRMAÇÃO GENÉRICA (SUBSTITUI window.confirm)              -->
+  <!-- ===================================================================== -->
+  <div id="modal-confirm" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center p-4 bg-oak-950/70 backdrop-blur-xs" role="dialog" aria-modal="true">
+    <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl border border-stone-200 overflow-hidden">
+      <div class="p-6 space-y-3">
+        <div class="w-11 h-11 rounded-xl bg-red-100 text-red-700 flex items-center justify-center">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <h3 id="confirm-title" class="text-base font-bold text-oak-900">Confirmar Ação</h3>
+        <p id="confirm-message" class="text-xs text-stone-600 leading-relaxed"></p>
+      </div>
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-2.5">
+        <button type="button" onclick="closeModal('modal-confirm')" class="px-4 py-2 rounded-xl border border-stone-300 text-xs font-semibold text-stone-700 hover:bg-stone-100">Cancelar</button>
+        <button type="button" id="confirm-action-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- CONTAINER DE NOTIFICAÇÕES TOAST                                       -->
+  <!-- ===================================================================== -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- ===================================================================== -->
+  <!-- LÓGICA JAVASCRIPT PURA COM PERSISTÊNCIA EM LOCALSTORAGE               -->
+  <!-- ===================================================================== -->
+  <script>
+    /* =====================================================================
+     * CHAVE DE ARMAZENAMENTO LOCAL E DADOS DE EXEMPLO REALISTAS
+     * ===================================================================== */
+    const STORAGE_KEY = 'unique_ambientes_erp_v1';
+
+    function getDefaultData() {
+      return {
+        nextCodeSeq: 11,
+        projects: [
+          {
+            id: 'PRJ-1001',
+            clientName: 'Marcelo & Camila Duarte',
+            title: 'Cozinha Gourmet com Ilha Central',
+            environment: 'Cozinha',
+            carpenter: 'João Carlos Silva',
+            deadlineDays: 30,
+            status: 'Executado',
+            area: 14.5,
+            unit: 'm²',
+            materialsCost: 8950.00,
+            laborCost: 4640.00,
+            laborModeLabel: 'Por m² (R$ 320,00/m²)',
+            shippingCost: 650.00,
+            marginPct: 22,
+            marginValue: 3132.80,
+            totalValue: 17372.80,
+            extraItems: [
+              { desc: 'Corrediça Oculta Soft-Close 500mm', qty: 12, unitPrice: 85.00 },
+              { desc: 'Perfil Alumínio LED 3000K + Fonte', qty: 4, unitPrice: 145.00 }
+            ],
+            notes: 'MDF Freijó Puro 18mm externo, Branco TX 15mm interno, gavetões reforçados para panelas.',
+            createdAt: '2026-10-12T10:15:00'
+          },
+          {
+            id: 'PRJ-1002',
+            clientName: 'Fernanda Albuquerque',
+            title: 'Closet Casal Suíte Master em L',
+            environment: 'Dormitório',
+            carpenter: 'Marcos Vinícius',
+            deadlineDays: 25,
+            status: 'Em Produção',
+            area: 12.2,
+            unit: 'm²',
+            materialsCost: 6820.00,
+            laborCost: 3500.00,
+            laborModeLabel: 'Diária (10 dias × R$ 350,00)',
+            shippingCost: 480.00,
+            marginPct: 20,
+            marginValue: 2160.00,
+            totalValue: 12960.00,
+            extraItems: [
+              { desc: 'Portas Perfil Bronze Vidro Reflecta', qty: 4, unitPrice: 420.00 },
+              { desc: 'Gaveta Porta-Joias com Veludo', qty: 2, unitPrice: 230.00 }
+            ],
+            notes: 'Iluminação com sensor de presença nos cabideiros e sapateira inclinada.',
+            createdAt: '2026-11-04T14:40:00'
+          },
+          {
+            id: 'PRJ-1003',
+            clientName: 'Construtora Horizonte Ltda.',
+            title: 'Painel Ripado Living + Rack Suspenso',
+            environment: 'Sala/Painel',
+            carpenter: 'João Carlos Silva',
+            deadlineDays: 15,
+            status: 'Montagem',
+            area: 9.8,
+            unit: 'm²',
+            materialsCost: 4980.00,
+            laborCost: 2600.00,
+            laborModeLabel: 'Valor Fixo',
+            shippingCost: 350.00,
+            marginPct: 20,
+            marginValue: 1586.00,
+            totalValue: 9516.00,
+            extraItems: [
+              { desc: 'Ripado MDF Carvalho Mel Usinado', qty: 18, unitPrice: 65.00 }
+            ],
+            notes: 'Apartamento decorado torre B. Passagem de fiação embutida para TV 75".',
+            createdAt: '2026-11-11T09:20:00'
+          },
+          {
+            id: 'PRJ-1004',
+            clientName: 'Dr. Felipe Esteves Advocacia',
+            title: 'Escritório Executivo & Estante Biblioteca',
+            environment: 'Escritório',
+            carpenter: 'Eduardo Nogueira',
+            deadlineDays: 22,
+            status: 'Orçamento',
+            area: 11.0,
+            unit: 'm²',
+            materialsCost: 6150.00,
+            laborCost: 3690.00,
+            laborModeLabel: '60% sobre Materiais',
+            shippingCost: 420.00,
+            marginPct: 25,
+            marginValue: 2565.00,
+            totalValue: 12825.00,
+            extraItems: [
+              { desc: 'Caixa de Tomada Embutida Alumínio', qty: 3, unitPrice: 180.00 }
+            ],
+            notes: 'Tampo engrossado 36mm em Carvalho Mel com fechamento lateral em Preto Nero.',
+            createdAt: '2026-11-19T16:05:00'
+          }
+        ],
+        inventory: [
+          {
+            id: 'INV-1',
+            code: 'UNQ-001',
+            name: 'Parafusadeira / Furadeira de Impacto 18V',
+            category: 'Ferramenta Elétrica',
+            brand: 'Makita DHP484',
+            qty: 3,
+            minQty: 2,
+            unit: 'Un',
+            status: 'Em Uso / Em Obra',
+            location: 'Obra Resid. Horizonte — João Carlos',
+            acquisitionDate: '2025-03-15',
+            notes: 'Acompanha 2 baterias 5.0Ah e carregador rápido.'
+          },
+          {
+            id: 'INV-2',
+            code: 'UNQ-002',
+            name: 'Serra Circular Manual 7.1/4" 1800W',
+            category: 'Ferramenta Elétrica',
+            brand: 'Bosch GKS 150',
+            qty: 2,
+            minQty: 1,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Armário de Elétricas — Prateleira A',
+            acquisitionDate: '2024-11-20',
+            notes: 'Disco 60 dentes para acabamento fino em MDF.'
+          },
+          {
+            id: 'INV-3',
+            code: 'UNQ-003',
+            name: 'Tupia Laminadora 530W',
+            category: 'Ferramenta Elétrica',
+            brand: 'Makita 3709',
+            qty: 2,
+            minQty: 1,
+            unit: 'Un',
+            status: 'Em Manutenção',
+            location: 'Assistência Técnica Central',
+            acquisitionDate: '2024-06-10',
+            notes: 'Troca de escovas de carvão e rolamento do eixo.'
+          },
+          {
+            id: 'INV-4',
+            code: 'UNQ-004',
+            name: 'Lixadeira Roto-Orbital 5"',
+            category: 'Ferramenta Elétrica',
+            brand: 'DeWalt DWE6421',
+            qty: 2,
+            minQty: 1,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Bancada de Acabamento 01',
+            acquisitionDate: '2025-01-22',
+            notes: 'Com coletor de pó revisado.'
+          },
+          {
+            id: 'INV-5',
+            code: 'UNQ-005',
+            name: 'Jogo de Grampos Sargento 600mm',
+            category: 'Ferramenta Manual',
+            brand: 'Irwin Quick-Grip',
+            qty: 8,
+            minQty: 4,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Painel de Ferramentas — Parede Sul',
+            acquisitionDate: '2024-08-05',
+            notes: 'Uso diário para prensagem e engrosso de peças.'
+          },
+          {
+            id: 'INV-6',
+            code: 'UNQ-006',
+            name: 'Trena Laser Digital 50m',
+            category: 'Ferramenta Manual',
+            brand: 'Bosch GLM 50-27 CG',
+            qty: 2,
+            minQty: 2,
+            unit: 'Un',
+            status: 'Em Uso / Em Obra',
+            location: 'Medição Técnica — Marcos Vinícius',
+            acquisitionDate: '2025-05-12',
+            notes: 'Laser verde de alta visibilidade.'
+          },
+          {
+            id: 'INV-7',
+            code: 'UNQ-007',
+            name: 'Esquadrejadeira de Precisão 2900mm',
+            category: 'Máquina/Equipamento',
+            brand: 'Baldan SEC-3',
+            qty: 1,
+            minQty: 1,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Setor de Corte — Galpão Principal',
+            acquisitionDate: '2023-09-01',
+            notes: 'Alinhamento de esquadro conferido mensalmente.'
+          },
+          {
+            id: 'INV-8',
+            code: 'UNQ-008',
+            name: 'Coladeira de Borda Automática',
+            category: 'Máquina/Equipamento',
+            brand: 'Maksiwa CBC.MR',
+            qty: 1,
+            minQty: 1,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Setor de Acabamento — Galpão Principal',
+            acquisitionDate: '2024-02-14',
+            notes: 'Limpeza do coleiro realizada toda sexta-feira.'
+          },
+          {
+            id: 'INV-9',
+            code: 'UNQ-009',
+            name: 'Chapa MDF Branco TX 18mm (2,75 × 1,85m)',
+            category: 'Insumos & Ferragens',
+            brand: 'Duratex',
+            qty: 4,
+            minQty: 8,
+            unit: 'Chapa',
+            status: 'Disponível',
+            location: 'Porta-Chapas Vertical — Ala B',
+            acquisitionDate: '2026-11-10',
+            notes: 'Estoque abaixo do mínimo — solicitar reposição ao fornecedor.'
+          },
+          {
+            id: 'INV-10',
+            code: 'UNQ-010',
+            name: 'Dobradiça Reta 35mm c/ Amortecedor Soft-Close',
+            category: 'Insumos & Ferragens',
+            brand: 'FGVTN',
+            qty: 45,
+            minQty: 30,
+            unit: 'Un',
+            status: 'Disponível',
+            location: 'Gaveteiro Ferragens — Gaveta 03',
+            acquisitionDate: '2026-11-15',
+            notes: 'Com calço clip e parafusos euro.'
+          }
+        ],
+        movements: [
+          {
+            id: 'MOV-101',
+            date: '2026-11-20T08:30:00',
+            code: 'UNQ-001',
+            itemName: 'Parafusadeira / Furadeira de Impacto 18V',
+            type: 'Saída/Retirada',
+            qty: 1,
+            responsible: 'João Carlos Silva',
+            destination: 'Obra Resid. Horizonte',
+            note: 'Montagem do painel ripado e rack suspenso.'
+          },
+          {
+            id: 'MOV-102',
+            date: '2026-11-19T15:10:00',
+            code: 'UNQ-009',
+            itemName: 'Chapa MDF Branco TX 18mm (2,75 × 1,85m)',
+            type: 'Saída/Retirada',
+            qty: 6,
+            responsible: 'Marcos Vinícius',
+            destination: 'Produção Closet Fernanda Albuquerque',
+            note: 'Corte das caixas internas do closet.'
+          },
+          {
+            id: 'MOV-103',
+            date: '2026-11-18T11:45:00',
+            code: 'UNQ-010',
+            itemName: 'Dobradiça Reta 35mm c/ Amortecedor Soft-Close',
+            type: 'Entrada',
+            qty: 50,
+            responsible: 'Almoxarifado Central',
+            destination: 'Gaveteiro Ferragens — Gaveta 03',
+            note: 'Reposição NF 4821 — Fornecedor Madeireira Sul.'
+          },
+          {
+            id: 'MOV-104',
+            date: '2026-11-16T09:00:00',
+            code: 'UNQ-003',
+            itemName: 'Tupia Laminadora 530W',
+            type: 'Edição',
+            qty: 2,
+            responsible: 'Manutenção Interna',
+            destination: 'Assistência Técnica Central',
+            note: 'Alterado status para Em Manutenção preventiva.'
+          }
+        ]
+      };
+    }
+
+    /* =====================================================================
+     * ESTADO GLOBAL EM MEMÓRIA + SINCRONIZAÇÃO COM LOCALSTORAGE
+     * ===================================================================== */
+    let appData = loadData();
+
+    const uiState = {
+      activeTab: 'dashboard',
+      areaMode: 'dimensoes', // 'dimensoes' | 'manual'
+      laborMode: 'm2',       // 'm2' | 'diaria' | 'fixo' | 'percentual'
+      projectStatusFilter: 'Todos',
+      inventoryCategory: 'Todos',
+      warehouseSubtab: 'itens',
+      viewedProjectId: null,
+      confirmCallback: null,
+      calcExtraItems: [
+        { desc: 'Dobradiças c/ Amortecedor Soft-Close', qty: 12, unitPrice: 18.50 },
+        { desc: 'Corrediças Telescópicas / Ocultas (par)', qty: 6, unitPrice: 75.00 }
+      ],
+      calcSummary: {}
+    };
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          const defaults = getDefaultData();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+          return defaults;
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.projects) || !Array.isArray(parsed.inventory)) {
+          throw new Error('Estrutura inválida');
+        }
+        if (!Array.isArray(parsed.movements)) parsed.movements = [];
+        if (typeof parsed.nextCodeSeq !== 'number') parsed.nextCodeSeq = parsed.inventory.length + 1;
+        return parsed;
+      } catch (err) {
+        const defaults = getDefaultData();
+        saveData(defaults);
+        return defaults;
+      }
+    }
+
+    function saveData(dataObj = appData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dataObj));
+      } catch (err) {
+        showToast('Erro ao gravar dados localmente (verifique espaço do navegador).', 'error');
+      }
+    }
+
+    /* =====================================================================
+     * FORMATADORES E UTILITÁRIOS (PT-BR / BRL / ESCAPE HTML)
+     * ===================================================================== */
+    function formatBRL(val) {
+      const num = Number(val) || 0;
+      return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function formatNumber(val, decimals = 2) {
+      const num = Number(val) || 0;
+      return num.toLocaleString('pt-BR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function formatDateTime(isoStr) {
+      if (!isoStr) return '—';
+      const d = new Date(isoStr);
+      if (isNaN(d.getTime())) return isoStr;
+      return d.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function formatDateOnly(dateStr) {
+      if (!dateStr) return '—';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return dateStr;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'error'
+        ? 'bg-red-700 border-red-500 text-white'
+        : type === 'warning'
+          ? 'bg-amber-700 border-amber-500 text-white'
+          : 'bg-oak-900 border-amber-600/50 text-white';
+
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-xs sm:text-sm font-medium transition-all duration-300 ${colors}`;
+      toast.innerHTML = `
+        <span class="w-2 h-2 rounded-full ${type === 'error' ? 'bg-red-200' : 'bg-amber-400'} shrink-0"></span>
+        <span>${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3400);
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+      // Libera scroll se não houver outros modais abertos
+      const anyOpen = Array.from(document.querySelectorAll('.modal-backdrop')).some(m => !m.classList.contains('hidden'));
+      if (!anyOpen) document.body.classList.remove('overflow-hidden');
+    }
+
+    function askConfirmation(title, message, onConfirm) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      uiState.confirmCallback = onConfirm;
+      openModal('modal-confirm');
+    }
+
+    /* =====================================================================
+     * NAVEGAÇÃO POR ABAS E SIDEBAR RESPONSIVA
+     * ===================================================================== */
+    const TAB_META = {
+      dashboard: { title: 'Painel Geral', subtitle: 'Visão executiva de projetos, produção e almoxarifado' },
+      orcamento: { title: 'Orçamento & Mão de Obra', subtitle: 'Calculadora técnica de metragem, materiais e remuneração do marceneiro' },
+      projetos: { title: 'Projetos & Clientes', subtitle: 'Acompanhamento de projetos em orçamento, produção e executados' },
+      almoxarifado: { title: 'Almoxarifado & Ferramentas', subtitle: 'Controle de equipamentos, retiradas, devoluções e estoque de insumos' }
+    };
+
+    function switchTab(tabId) {
+      uiState.activeTab = tabId;
+
+      document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.add('active');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const active = btn.getAttribute('data-nav') === tabId;
+        if (active) {
+          btn.classList.add('bg-amber-600', 'text-white', 'shadow-sm');
+          btn.classList.remove('text-stone-300', 'hover:bg-stone-800', 'hover:text-white');
+        } else {
+          btn.classList.remove('bg-amber-600', 'text-white', 'shadow-sm');
+          btn.classList.add('text-stone-300', 'hover:bg-stone-800', 'hover:text-white');
+        }
+      });
+
+      const meta = TAB_META[tabId] || TAB_META.dashboard;
+      document.getElementById('topbar-title').textContent = meta.title;
+      document.getElementById('topbar-subtitle').textContent = meta.subtitle;
+
+      toggleMobileSidebar(false);
+      refreshAllViews();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileSidebar(show) {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (show) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function refreshAllViews() {
+      renderDashboard();
+      renderProjects();
+      renderInventory();
+      renderMovements();
+      updateSidebarBadges();
+    }
+
+    function updateSidebarBadges() {
+      document.getElementById('sidebar-projects-count').textContent = appData.projects.length;
+      const alertCount = getAlertItems().length;
+      const badge = document.getElementById('sidebar-alerts-count');
+      badge.textContent = alertCount;
+      badge.classList.toggle('hidden', alertCount === 0);
+    }
+
+    /* =====================================================================
+     * MÓDULO 1: PAINEL GERAL (DASHBOARD + BACKUP JSON)
+     * ===================================================================== */
+    function isLowStock(item) {
+      return Number(item.qty) <= Number(item.minQty);
+    }
+
+    function getAlertItems() {
+      return appData.inventory.filter(item =>
+        isLowStock(item) ||
+        item.status === 'Em Manutenção' ||
+        item.status === 'Em Uso / Em Obra'
+      );
+    }
+
+    function renderDashboard() {
+      const projects = appData.projects;
+      const executedCount = projects.filter(p => p.status === 'Executado').length;
+      const inProdCount = projects.filter(p => p.status === 'Em Produção' || p.status === 'Montagem').length;
+      const totalProjValue = projects.reduce((acc, p) => acc + (Number(p.totalValue) || 0), 0);
+      const totalLaborValue = projects.reduce((acc, p) => acc + (Number(p.laborCost) || 0), 0);
+
+      const inv = appData.inventory;
+      const totalUnits = inv.reduce((acc, i) => acc + (Number(i.qty) || 0), 0);
+      const alerts = getAlertItems();
+
+      document.getElementById('kpi-projects-total').textContent = projects.length;
+      document.getElementById('kpi-projects-sub').textContent = `${executedCount} Executados • ${inProdCount} Em Produção/Montagem`;
+      document.getElementById('kpi-projects-value').textContent = formatBRL(totalProjValue);
+      document.getElementById('kpi-labor-sub').textContent = `Mão de obra acumulada: ${formatBRL(totalLaborValue)}`;
+      document.getElementById('kpi-inventory-total').textContent = inv.length;
+      document.getElementById('kpi-inventory-sub').textContent = `${totalUnits} unidades totais registradas`;
+      document.getElementById('kpi-alerts-total').textContent = alerts.length;
+
+      const lowCount = inv.filter(isLowStock).length;
+      const maintCount = inv.filter(i => i.status === 'Em Manutenção').length;
+      const inUseCount = inv.filter(i => i.status === 'Em Uso / Em Obra').length;
+      document.getElementById('kpi-alerts-sub').textContent = `${lowCount} estoque baixo • ${maintCount} manutenção • ${inUseCount} em obra`;
+
+      // Últimos projetos
+      const recentProjEl = document.getElementById('dashboard-recent-projects');
+      if (projects.length === 0) {
+        recentProjEl.innerHTML = `<div class="p-6 text-center text-xs text-stone-400">Nenhum projeto cadastrado ainda.</div>`;
+      } else {
+        recentProjEl.innerHTML = projects.slice(0, 5).map(p => `
+          <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-stone-50/80 transition-colors">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-bold text-oak-900 truncate">${escapeHtml(p.clientName)}</span>
+                ${getProjectStatusBadge(p.status)}
+              </div>
+              <p class="text-xs text-stone-500 mt-0.5 truncate">${escapeHtml(p.title)} • ${escapeHtml(p.environment)} • ${formatNumber(p.area)} ${escapeHtml(p.unit || 'm²')}</p>
+            </div>
+            <div class="text-left sm:text-right shrink-0">
+              <p class="text-sm font-extrabold text-oak-900">${formatBRL(p.totalValue)}</p>
+              <p class="text-[11px] text-amber-700 font-medium">Mão de obra: ${formatBRL(p.laborCost)}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Últimas movimentações
+      const recentMovEl = document.getElementById('dashboard-recent-movements');
+      if (appData.movements.length === 0) {
+        recentMovEl.innerHTML = `<div class="p-6 text-center text-xs text-stone-400">Sem movimentações registradas.</div>`;
+      } else {
+        recentMovEl.innerHTML = appData.movements.slice(0, 6).map(m => `
+          <div class="px-5 py-3.5 flex items-start justify-between gap-3 hover:bg-stone-50/80 transition-colors">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                ${getMovementTypeBadge(m.type)}
+                <span class="text-[11px] font-mono font-semibold text-stone-500">${escapeHtml(m.code)}</span>
+              </div>
+              <p class="text-xs font-bold text-oak-900 mt-1 truncate">${escapeHtml(m.itemName)}</p>
+              <p class="text-[11px] text-stone-500 truncate">${escapeHtml(m.responsible)} • ${escapeHtml(m.destination || '—')}</p>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs font-extrabold text-oak-900 block">Qtd: ${m.qty}</span>
+              <span class="text-[10px] text-stone-400">${formatDateTime(m.date)}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function exportBackupJSON() {
+      try {
+        const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const stamp = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `unique-ambientes-backup-${stamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Backup JSON exportado com sucesso!');
+      } catch (err) {
+        showToast('Falha ao exportar backup.', 'error');
+      }
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!Array.isArray(parsed.projects) || !Array.isArray(parsed.inventory)) {
+            throw new Error('Formato incompatível');
+          }
+          appData = {
+            nextCodeSeq: Number(parsed.nextCodeSeq) || parsed.inventory.length + 1,
+            projects: parsed.projects,
+            inventory: parsed.inventory,
+            movements: Array.isArray(parsed.movements) ? parsed.movements : []
+          };
+          saveData();
+          refreshAllViews();
+          showToast('Backup importado e restaurado com sucesso!');
+        } catch (err) {
+          showToast('Arquivo JSON inválido ou incompatível com o sistema.', 'error');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function askResetDemoData() {
+      askConfirmation(
+        'Resetar Dados de Exemplo',
+        'Isso substituirá todos os projetos, equipamentos e movimentações atuais pelos dados iniciais de demonstração da UNIQUE AMBIENTES. Deseja continuar?',
+        () => {
+          appData = getDefaultData();
+          saveData();
+          refreshAllViews();
+          showToast('Dados de exemplo restaurados.', 'warning');
+        }
+      );
+    }
+
+    /* =====================================================================
+     * MÓDULO 2: ORÇAMENTO & MÃO DE OBRA (CALCULADORA TÉCNICA)
+     * ===================================================================== */
+    function setAreaMode(mode) {
+      uiState.areaMode = mode;
+      const btnDim = document.getElementById('btn-area-dim');
+      const btnMan = document.getElementById('btn-area-manual');
+      const boxDim = document.getElementById('area-mode-dimensoes');
+      const boxMan = document.getElementById('area-mode-manual');
+
+      if (mode === 'dimensoes') {
+        btnDim.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-oak-900 text-white';
+        btnMan.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-oak-900';
+        boxDim.classList.remove('hidden');
+        boxMan.classList.add('hidden');
+      } else {
+        btnMan.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-oak-900 text-white';
+        btnDim.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-oak-900';
+        boxMan.classList.remove('hidden');
+        boxDim.classList.add('hidden');
+      }
+      recalculateBudget();
+    }
+
+    function setLaborMode(mode) {
+      uiState.laborMode = mode;
+      document.querySelectorAll('.labor-mode-btn').forEach(btn => {
+        const active = btn.getAttribute('data-labor-mode') === mode;
+        if (active) {
+          btn.classList.add('bg-oak-900', 'text-white', 'border-oak-900', 'shadow-sm');
+          btn.classList.remove('bg-white', 'text-stone-700', 'border-stone-200', 'hover:border-amber-500');
+        } else {
+          btn.classList.remove('bg-oak-900', 'text-white', 'border-oak-900', 'shadow-sm');
+          btn.classList.add('bg-white', 'text-stone-700', 'border-stone-200', 'hover:border-amber-500');
+        }
+      });
+
+      ['m2', 'diaria', 'fixo', 'percentual'].forEach(m => {
+        const el = document.getElementById(`labor-input-${m}`);
+        if (el) el.classList.toggle('hidden', m !== mode);
+      });
+      recalculateBudget();
+    }
+
+    function renderExtraMaterialRows() {
+      const tbody = document.getElementById('extra-materials-tbody');
+      if (uiState.calcExtraItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-3 py-4 text-center text-stone-400">Nenhum item extra adicionado. Clique em "Adicionar Item" acima.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = uiState.calcExtraItems.map((row, idx) => {
+        const sub = (Number(row.qty) || 0) * (Number(row.unitPrice) || 0);
+        return `
+          <tr>
+            <td class="px-2 py-2">
+              <input type="text" value="${escapeHtml(row.desc)}" placeholder="Ex.: Chapa MDF / Corrediça / LED" oninput="updateExtraRow(${idx}, 'desc', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs focus:outline-none focus:border-amber-600" />
+            </td>
+            <td class="px-2 py-2">
+              <input type="number" min="0" step="1" value="${row.qty}" oninput="updateExtraRow(${idx}, 'qty', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs focus:outline-none focus:border-amber-600" />
+            </td>
+            <td class="px-2 py-2">
+              <input type="number" min="0" step="0.01" value="${row.unitPrice}" oninput="updateExtraRow(${idx}, 'unitPrice', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 text-xs focus:outline-none focus:border-amber-600" />
+            </td>
+            <td class="px-3 py-2 text-right font-semibold text-oak-900 whitespace-nowrap" id="extra-row-sub-${idx}">${formatBRL(sub)}</td>
+            <td class="px-2 py-2 text-center">
+              <button type="button" onclick="removeExtraMaterialRow(${idx})" class="p-1 rounded-lg text-stone-400 hover:text-red-600 hover:bg-red-50" title="Remover linha">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function addExtraMaterialRow() {
+      uiState.calcExtraItems.push({ desc: '', qty: 1, unitPrice: 0 });
+      renderExtraMaterialRows();
+      recalculateBudget();
+    }
+
+    function updateExtraRow(idx, field, value) {
+      if (!uiState.calcExtraItems[idx]) return;
+      uiState.calcExtraItems[idx][field] = field === 'desc' ? value : (parseFloat(value) || 0);
+      const subEl = document.getElementById(`extra-row-sub-${idx}`);
+      if (subEl) {
+        const sub = (Number(uiState.calcExtraItems[idx].qty) || 0) * (Number(uiState.calcExtraItems[idx].unitPrice) || 0);
+        subEl.textContent = formatBRL(sub);
+      }
+      recalculateBudget();
+    }
+
+    function removeExtraMaterialRow(idx) {
+      uiState.calcExtraItems.splice(idx, 1);
+      renderExtraMaterialRows();
+      recalculateBudget();
+    }
+
+    function recalculateBudget() {
+      // 1. Metragem
+      let area = 0;
+      let unit = 'm²';
+      if (uiState.areaMode === 'dimensoes') {
+        const w = parseFloat(document.getElementById('calc-width').value) || 0;
+        const h = parseFloat(document.getElementById('calc-height').value) || 0;
+        area = w * h;
+        unit = 'm²';
+        document.getElementById('calc-area-computed').textContent = `${formatNumber(area)} m²`;
+      } else {
+        area = parseFloat(document.getElementById('calc-manual-area').value) || 0;
+        unit = document.getElementById('calc-manual-unit').value;
+      }
+
+      document.getElementById('label-rate-unit').textContent = unit;
+      document.querySelectorAll('.labor-unit-ref').forEach(el => el.textContent = unit);
+
+      // 2. Materiais (base + itens extras)
+      const mdfRate = parseFloat(document.getElementById('calc-mdf-rate').value) || 0;
+      const baseMaterialCost = area * mdfRate;
+      document.getElementById('calc-base-material-subtotal').textContent = formatBRL(baseMaterialCost);
+
+      const extraCost = uiState.calcExtraItems.reduce((acc, row) => {
+        return acc + ((Number(row.qty) || 0) * (Number(row.unitPrice) || 0));
+      }, 0);
+
+      const totalMaterials = baseMaterialCost + extraCost;
+
+      // 3. Mão de Obra do Marceneiro
+      let laborCost = 0;
+      let laborModeLabel = '';
+      if (uiState.laborMode === 'm2') {
+        const rate = parseFloat(document.getElementById('calc-labor-m2-rate').value) || 0;
+        laborCost = area * rate;
+        laborModeLabel = `Por ${unit} (${formatBRL(rate)}/${unit})`;
+        document.getElementById('labor-m2-formula').textContent = `${formatNumber(area)} ${unit} × ${formatBRL(rate)}`;
+      } else if (uiState.laborMode === 'diaria') {
+        const days = parseFloat(document.getElementById('calc-labor-days').value) || 0;
+        const dayRate = parseFloat(document.getElementById('calc-labor-day-rate').value) || 0;
+        laborCost = days * dayRate;
+        laborModeLabel = `Diária (${formatNumber(days, 1)} dias × ${formatBRL(dayRate)})`;
+      } else if (uiState.laborMode === 'fixo') {
+        laborCost = parseFloat(document.getElementById('calc-labor-fixed').value) || 0;
+        laborModeLabel = 'Valor Fixo Combinado';
+      } else if (uiState.laborMode === 'percentual') {
+        const pct = parseFloat(document.getElementById('calc-labor-percent').value) || 0;
+        laborCost = totalMaterials * (pct / 100);
+        laborModeLabel = `${formatNumber(pct, 1)}% sobre Materiais`;
+      }
+
+      // 4. Montagem / Frete + Margem Empresarial
+      const shippingCost = parseFloat(document.getElementById('calc-shipping').value) || 0;
+      const marginPct = parseFloat(document.getElementById('calc-margin').value) || 0;
+      const directCost = totalMaterials + laborCost + shippingCost;
+      const marginValue = directCost * (marginPct / 100);
+      const grandTotal = directCost + marginValue;
+
+      uiState.calcSummary = {
+        area,
+        unit,
+        mdfRate,
+        baseMaterialCost,
+        extraCost,
+        totalMaterials,
+        laborCost,
+        laborModeLabel,
+        shippingCost,
+        marginPct,
+        marginValue,
+        grandTotal
+      };
+
+      // Atualiza painel lateral
+      document.getElementById('sum-area-badge').textContent = `${formatNumber(area)} ${unit}`;
+      document.getElementById('sum-materials').textContent = formatBRL(totalMaterials);
+      document.getElementById('sum-labor').textContent = formatBRL(laborCost);
+      document.getElementById('sum-labor-detail').textContent = laborModeLabel;
+      document.getElementById('sum-shipping').textContent = formatBRL(shippingCost);
+      document.getElementById('sum-margin-pct').textContent = formatNumber(marginPct, 1);
+      document.getElementById('sum-margin').textContent = formatBRL(marginValue);
+      document.getElementById('sum-grand-total').textContent = formatBRL(grandTotal);
+
+      const perUnit = area > 0 ? grandTotal / area : 0;
+      document.getElementById('sum-unit-metric').textContent = `Custo final médio: ${formatBRL(perUnit)} / ${unit}`;
+    }
+
+    function saveCalculatorProject(event) {
+      event.preventDefault();
+      const clientName = document.getElementById('calc-client').value.trim();
+      const title = document.getElementById('calc-title').value.trim();
+      if (!clientName || !title) {
+        showToast('Informe o Nome do Cliente e o Título do Projeto.', 'error');
+        return;
+      }
+
+      recalculateBudget();
+      const s = uiState.calcSummary;
+      const newProject = {
+        id: 'PRJ-' + Date.now().toString().slice(-5),
+        clientName,
+        title,
+        environment: document.getElementById('calc-env').value,
+        carpenter: document.getElementById('calc-carpenter').value.trim() || 'A definir',
+        deadlineDays: parseInt(document.getElementById('calc-deadline').value, 10) || 20,
+        status: document.getElementById('calc-status').value,
+        area: Number(s.area.toFixed(2)),
+        unit: s.unit,
+        materialsCost: Number(s.totalMaterials.toFixed(2)),
+        laborCost: Number(s.laborCost.toFixed(2)),
+        laborModeLabel: s.laborModeLabel,
+        shippingCost: Number(s.shippingCost.toFixed(2)),
+        marginPct: s.marginPct,
+        marginValue: Number(s.marginValue.toFixed(2)),
+        totalValue: Number(s.grandTotal.toFixed(2)),
+        extraItems: uiState.calcExtraItems
+          .filter(i => i.desc.trim() || Number(i.unitPrice) > 0)
+          .map(i => ({ desc: i.desc.trim() || 'Insumo avulso', qty: Number(i.qty) || 0, unitPrice: Number(i.unitPrice) || 0 })),
+        notes: document.getElementById('calc-notes').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      appData.projects.unshift(newProject);
+      saveData();
+      refreshAllViews();
+      showToast(`Projeto "${title}" de ${clientName} salvo com sucesso!`);
+      switchTab('projetos');
+    }
+
+    function resetCalculatorForm() {
+      document.getElementById('calc-client').value = '';
+      document.getElementById('calc-title').value = '';
+      document.getElementById('calc-env').value = 'Cozinha';
+      document.getElementById('calc-carpenter').value = '';
+      document.getElementById('calc-deadline').value = 25;
+      document.getElementById('calc-status').value = 'Orçamento';
+      document.getElementById('calc-width').value = '3.50';
+      document.getElementById('calc-height').value = '2.40';
+      document.getElementById('calc-manual-area').value = '8.40';
+      document.getElementById('calc-mdf-rate').value = '520.00';
+      document.getElementById('calc-shipping').value = '450.00';
+      document.getElementById('calc-margin').value = '20';
+      document.getElementById('calc-notes').value = '';
+      uiState.calcExtraItems = [];
+      renderExtraMaterialRows();
+      setAreaMode('dimensoes');
+      setLaborMode('m2');
+      recalculateBudget();
+      showToast('Campos da calculadora limpos.', 'warning');
+    }
+
+    function printCurrentCalculator() {
+      recalculateBudget();
+      const s = uiState.calcSummary;
+      const draft = {
+        id: 'ORÇAMENTO RASCUNHO',
+        clientName: document.getElementById('calc-client').value.trim() || 'Não informado',
+        title: document.getElementById('calc-title').value.trim() || 'Projeto Sob Medida',
+        environment: document.getElementById('calc-env').value,
+        carpenter: document.getElementById('calc-carpenter').value.trim() || 'A definir',
+        deadlineDays: document.getElementById('calc-deadline').value || 25,
+        status: document.getElementById('calc-status').value,
+        area: s.area,
+        unit: s.unit,
+        materialsCost: s.totalMaterials,
+        laborCost: s.laborCost,
+        laborModeLabel: s.laborModeLabel,
+        shippingCost: s.shippingCost,
+        marginPct: s.marginPct,
+        marginValue: s.marginValue,
+        totalValue: s.grandTotal,
+        extraItems: uiState.calcExtraItems.filter(i => i.desc.trim() || Number(i.unitPrice) > 0),
+        notes: document.getElementById('calc-notes').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+      triggerPrintSheet(draft);
+    }
+
+    /* =====================================================================
+     * MÓDULO 3: PROJETOS & CLIENTES (CRUD COMPLETO + IMPRESSÃO)
+     * ===================================================================== */
+    function getProjectStatusBadge(status) {
+      const styles = {
+        'Orçamento': 'bg-stone-100 text-stone-700 border-stone-300',
+        'Aprovado': 'bg-blue-50 text-blue-700 border-blue-200',
+        'Em Produção': 'bg-amber-50 text-amber-800 border-amber-300',
+        'Montagem': 'bg-purple-50 text-purple-700 border-purple-200',
+        'Executado': 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      };
+      const cls = styles[status] || styles['Orçamento'];
+      return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${cls}">${escapeHtml(status)}</span>`;
+    }
+
+    function setProjectStatusFilter(status) {
+      uiState.projectStatusFilter = status;
+      renderProjects();
+    }
+
+    function renderProjects() {
+      // Atualiza estilo dos botões de filtro
+      document.querySelectorAll('.pstatus-btn').forEach(btn => {
+        const active = btn.getAttribute('data-pstatus') === uiState.projectStatusFilter;
+        if (active) {
+          btn.classList.add('bg-oak-900', 'text-white');
+          btn.classList.remove('bg-stone-100', 'text-stone-600', 'hover:bg-stone-200');
+        } else {
+          btn.classList.remove('bg-oak-900', 'text-white');
+          btn.classList.add('bg-stone-100', 'text-stone-600', 'hover:bg-stone-200');
+        }
+      });
+
+      const query = (document.getElementById('projects-search')?.value || '').trim().toLowerCase();
+      const filtered = appData.projects.filter(p => {
+        const matchStatus = uiState.projectStatusFilter === 'Todos' || p.status === uiState.projectStatusFilter;
+        const matchQuery = !query ||
+          p.clientName.toLowerCase().includes(query) ||
+          p.title.toLowerCase().includes(query) ||
+          (p.carpenter || '').toLowerCase().includes(query) ||
+          (p.environment || '').toLowerCase().includes(query);
+        return matchStatus && matchQuery;
+      });
+
+      const container = document.getElementById('projects-container');
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="lg:col-span-2 bg-white rounded-2xl border border-stone-200 p-10 text-center">
+            <p class="text-sm font-bold text-oak-900">Nenhum projeto encontrado</p>
+            <p class="text-xs text-stone-500 mt-1">Ajuste os filtros ou crie um novo orçamento na calculadora.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => `
+        <article class="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs hover:border-amber-600/50 transition-all flex flex-col justify-between gap-4">
+          <div class="space-y-3">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <span class="text-[11px] font-mono text-stone-400">${escapeHtml(p.id)} • ${escapeHtml(p.environment)}</span>
+                <h3 class="text-base font-extrabold text-oak-900 mt-0.5 truncate">${escapeHtml(p.clientName)}</h3>
+                <p class="text-sm font-medium text-stone-600 truncate">${escapeHtml(p.title)}</p>
+              </div>
+              <!-- Select rápido para alterar status diretamente -->
+              <select onchange="quickChangeProjectStatus('${p.id}', this.value)" aria-label="Alterar status do projeto" class="text-xs font-bold px-2.5 py-1.5 rounded-xl border border-stone-300 bg-stone-50 text-oak-900 focus:outline-none focus:border-amber-600 cursor-pointer shrink-0">
+                ${['Orçamento', 'Aprovado', 'Em Produção', 'Montagem', 'Executado'].map(st => `
+                  <option value="${st}" ${p.status === st ? 'selected' : ''}>${st}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <!-- Indicadores Técnicos -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-stone-50 rounded-xl p-3 border border-stone-100 text-xs">
+              <div>
+                <span class="block text-[10px] uppercase font-semibold text-stone-400">Metragem</span>
+                <span class="font-bold text-oak-900">${formatNumber(p.area)} ${escapeHtml(p.unit || 'm²')}</span>
+              </div>
+              <div>
+                <span class="block text-[10px] uppercase font-semibold text-stone-400">Marceneiro</span>
+                <span class="font-bold text-oak-900 truncate block">${escapeHtml(p.carpenter || '—')}</span>
+              </div>
+              <div>
+                <span class="block text-[10px] uppercase font-semibold text-amber-700">Mão de Obra</span>
+                <span class="font-bold text-amber-700">${formatBRL(p.laborCost)}</span>
+              </div>
+              <div>
+                <span class="block text-[10px] uppercase font-semibold text-stone-400">Valor Total</span>
+                <span class="font-extrabold text-oak-900">${formatBRL(p.totalValue)}</span>
+              </div>
+            </div>
+
+            ${p.notes ? `<p class="text-xs text-stone-500 line-clamp-2">${escapeHtml(p.notes)}</p>` : ''}
+          </div>
+
+          <!-- Ações do Card -->
+          <div class="pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              ${getProjectStatusBadge(p.status)}
+              <span class="text-[11px] text-stone-400">Prazo: ${p.deadlineDays || 20}d úteis</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="openProjectViewModal('${p.id}')" class="px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-oak-900 text-xs font-semibold transition-colors">Ver Ficha / Imprimir</button>
+              <button type="button" onclick="openProjectEditModal('${p.id}')" class="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition-colors">Editar</button>
+              <button type="button" onclick="askDeleteProject('${p.id}')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-semibold transition-colors">Excluir</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function quickChangeProjectStatus(id, newStatus) {
+      const proj = appData.projects.find(p => p.id === id);
+      if (!proj) return;
+      proj.status = newStatus;
+      saveData();
+      refreshAllViews();
+      showToast(`Status de "${proj.clientName}" atualizado para ${newStatus}.`);
+    }
+
+    function openProjectViewModal(id) {
+      const p = appData.projects.find(item => item.id === id);
+      if (!p) return;
+      uiState.viewedProjectId = id;
+      document.getElementById('pv-title').textContent = `${p.clientName} — ${p.title}`;
+
+      const extrasHtml = (p.extraItems && p.extraItems.length > 0)
+        ? `
+          <div class="border border-stone-200 rounded-xl overflow-hidden">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-stone-50 text-stone-500 uppercase text-[10px]">
+                <tr><th class="px-3 py-2">Item / Insumo Extra</th><th class="px-3 py-2">Qtd.</th><th class="px-3 py-2 text-right">Subtotal</th></tr>
+              </thead>
+              <tbody class="divide-y divide-stone-100">
+                ${p.extraItems.map(ex => `
+                  <tr>
+                    <td class="px-3 py-2 font-medium text-oak-900">${escapeHtml(ex.desc)}</td>
+                    <td class="px-3 py-2">${ex.qty}</td>
+                    <td class="px-3 py-2 text-right font-semibold">${formatBRL((Number(ex.qty) || 0) * (Number(ex.unitPrice) || 0))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `
+        : '';
+
+      document.getElementById('pv-body').innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-mono text-stone-500">Código: <strong>${escapeHtml(p.id)}</strong> • Registrado em ${formatDateTime(p.createdAt)}</span>
+          ${getProjectStatusBadge(p.status)}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+            <span class="text-[11px] font-semibold uppercase text-stone-400">Cliente</span>
+            <p class="font-bold text-oak-900 mt-0.5">${escapeHtml(p.clientName)}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+            <span class="text-[11px] font-semibold uppercase text-stone-400">Marceneiro Responsável</span>
+            <p class="font-bold text-oak-900 mt-0.5">${escapeHtml(p.carpenter || 'Não definido')}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+            <span class="text-[11px] font-semibold uppercase text-stone-400">Ambiente &amp; Metragem</span>
+            <p class="font-bold text-oak-900 mt-0.5">${escapeHtml(p.environment)} • ${formatNumber(p.area)} ${escapeHtml(p.unit || 'm²')}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-stone-50 border border-stone-200">
+            <span class="text-[11px] font-semibold uppercase text-stone-400">Prazo Estimado</span>
+            <p class="font-bold text-oak-900 mt-0.5">${p.deadlineDays || 20} dias úteis</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-stone-200 p-4 space-y-2.5 bg-white">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-stone-500">Composição Financeira</h4>
+          <div class="flex justify-between text-xs"><span>Materiais &amp; Insumos:</span><strong>${formatBRL(p.materialsCost)}</strong></div>
+          <div class="flex justify-between text-xs text-amber-800 bg-amber-50 px-2.5 py-2 rounded-lg">
+            <span>Mão de Obra (${escapeHtml(p.laborModeLabel || 'Marceneiro')}):</span>
+            <strong class="text-sm">${formatBRL(p.laborCost)}</strong>
+          </div>
+          <div class="flex justify-between text-xs"><span>Montagem / Frete:</span><strong>${formatBRL(p.shippingCost || 0)}</strong></div>
+          <div class="flex justify-between text-base font-extrabold text-oak-900 pt-2 border-t border-stone-200">
+            <span>VALOR TOTAL DO PROJETO</span>
+            <span>${formatBRL(p.totalValue)}</span>
+          </div>
+        </div>
+
+        ${extrasHtml}
+
+        <div>
+          <span class="text-xs font-bold uppercase text-stone-500 block mb-1">Observações Técnicas</span>
+          <p class="text-xs text-stone-700 bg-stone-50 p-3.5 rounded-xl border border-stone-200 leading-relaxed">${escapeHtml(p.notes || 'Sem observações cadastradas.')}</p>
+        </div>
+      `;
+
+      openModal('modal-project-view');
+    }
+
+    function printViewedProject() {
+      const p = appData.projects.find(item => item.id === uiState.viewedProjectId);
+      if (!p) return;
+      closeModal('modal-project-view');
+      triggerPrintSheet(p);
+    }
+
+    function openProjectEditModal(id) {
+      const isEdit = Boolean(id);
+      const p = isEdit ? appData.projects.find(item => item.id === id) : null;
+
+      document.getElementById('pe-modal-heading').textContent = isEdit ? `Editar Projeto (${p.id})` : 'Cadastrar Novo Projeto';
+      document.getElementById('pe-id').value = isEdit ? p.id : '';
+      document.getElementById('pe-client').value = isEdit ? p.clientName : '';
+      document.getElementById('pe-title').value = isEdit ? p.title : '';
+      document.getElementById('pe-env').value = isEdit ? p.environment : 'Cozinha';
+      document.getElementById('pe-carpenter').value = isEdit ? (p.carpenter || '') : '';
+      document.getElementById('pe-status').value = isEdit ? p.status : 'Orçamento';
+      document.getElementById('pe-area').value = isEdit ? p.area : 6.0;
+      document.getElementById('pe-unit').value = isEdit ? (p.unit || 'm²') : 'm²';
+      document.getElementById('pe-deadline').value = isEdit ? (p.deadlineDays || 20) : 20;
+      document.getElementById('pe-materials').value = isEdit ? (p.materialsCost || 0) : 0;
+      document.getElementById('pe-labor').value = isEdit ? (p.laborCost || 0) : 0;
+      document.getElementById('pe-total').value = isEdit ? (p.totalValue || 0) : 0;
+      document.getElementById('pe-notes').value = isEdit ? (p.notes || '') : '';
+
+      openModal('modal-project-edit');
+    }
+
+    function saveProjectModal(event) {
+      event.preventDefault();
+      const id = document.getElementById('pe-id').value;
+      const payload = {
+        clientName: document.getElementById('pe-client').value.trim(),
+        title: document.getElementById('pe-title').value.trim(),
+        environment: document.getElementById('pe-env').value,
+        carpenter: document.getElementById('pe-carpenter').value.trim() || 'A definir',
+        status: document.getElementById('pe-status').value,
+        area: parseFloat(document.getElementById('pe-area').value) || 0,
+        unit: document.getElementById('pe-unit').value,
+        deadlineDays: parseInt(document.getElementById('pe-deadline').value, 10) || 20,
+        materialsCost: parseFloat(document.getElementById('pe-materials').value) || 0,
+        laborCost: parseFloat(document.getElementById('pe-labor').value) || 0,
+        totalValue: parseFloat(document.getElementById('pe-total').value) || 0,
+        notes: document.getElementById('pe-notes').value.trim()
+      };
+
+      if (id) {
+        const idx = appData.projects.findIndex(p => p.id === id);
+        if (idx !== -1) {
+          appData.projects[idx] = { ...appData.projects[idx], ...payload };
+        }
+        showToast('Projeto atualizado com sucesso!');
+      } else {
+        appData.projects.unshift({
+          id: 'PRJ-' + Date.now().toString().slice(-5),
+          ...payload,
+          laborModeLabel: 'Cadastro Manual',
+          shippingCost: 0,
+          marginPct: 0,
+          marginValue: 0,
+          extraItems: [],
+          createdAt: new Date().toISOString()
+        });
+        showToast('Novo projeto cadastrado!');
+      }
+
+      saveData();
+      closeModal('modal-project-edit');
+      refreshAllViews();
+    }
+
+    function askDeleteProject(id) {
+      const p = appData.projects.find(item => item.id === id);
+      if (!p) return;
+      askConfirmation(
+        'Excluir Projeto',
+        `Deseja realmente remover o projeto "${p.title}" do cliente ${p.clientName}? Esta ação não pode ser desfeita.`,
+        () => {
+          appData.projects = appData.projects.filter(item => item.id !== id);
+          saveData();
+          refreshAllViews();
+          showToast('Projeto removido.', 'warning');
+        }
+      );
+    }
+
+    /* =====================================================================
+     * IMPRESSÃO LIMPA DE FICHA TÉCNICA / ORDEM DE SERVIÇO (window.print)
+     * ===================================================================== */
+    function triggerPrintSheet(p) {
+      const printEl = document.getElementById('print-sheet');
+      const extrasRows = (p.extraItems && p.extraItems.length > 0)
+        ? `
+          <div class="mt-6">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-600 mb-2">Itens Extras &amp; Insumos Discriminados</h3>
+            <table class="w-full text-xs border border-stone-300 border-collapse">
+              <thead>
+                <tr class="bg-stone-100">
+                  <th class="border border-stone-300 px-3 py-2 text-left">Descrição</th>
+                  <th class="border border-stone-300 px-3 py-2 text-center w-20">Qtd.</th>
+                  <th class="border border-stone-300 px-3 py-2 text-right w-28">Unitário</th>
+                  <th class="border border-stone-300 px-3 py-2 text-right w-28">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${p.extraItems.map(item => `
+                  <tr>
+                    <td class="border border-stone-300 px-3 py-1.5">${escapeHtml(item.desc)}</td>
+                    <td class="border border-stone-300 px-3 py-1.5 text-center">${item.qty}</td>
+                    <td class="border border-stone-300 px-3 py-1.5 text-right">${formatBRL(item.unitPrice)}</td>
+                    <td class="border border-stone-300 px-3 py-1.5 text-right font-semibold">${formatBRL((Number(item.qty) || 0) * (Number(item.unitPrice) || 0))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `
+        : '';
+
+      printEl.innerHTML = `
+        <div class="border-b-2 border-oak-900 pb-4 flex items-end justify-between">
+          <div>
+            <h1 class="text-2xl font-extrabold tracking-wide text-oak-900">UNIQUE AMBIENTES</h1>
+            <p class="text-xs font-semibold uppercase tracking-widest text-amber-700">Gestão Empresarial &amp; Marcenaria • Ficha Técnica / Ordem de Serviço</p>
+          </div>
+          <div class="text-right text-xs">
+            <p class="font-mono font-bold">${escapeHtml(p.id)}</p>
+            <p class="text-stone-500">Emissão: ${formatDateTime(new Date().toISOString())}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mt-6 text-xs">
+          <div class="border border-stone-300 rounded-lg p-3">
+            <span class="text-[10px] uppercase font-bold text-stone-500 block">Nome do Cliente</span>
+            <strong class="text-sm text-oak-900">${escapeHtml(p.clientName)}</strong>
+          </div>
+          <div class="border border-stone-300 rounded-lg p-3">
+            <span class="text-[10px] uppercase font-bold text-stone-500 block">Projeto / Ambiente</span>
+            <strong class="text-sm text-oak-900">${escapeHtml(p.title)} (${escapeHtml(p.environment)})</strong>
+          </div>
+          <div class="border border-stone-300 rounded-lg p-3">
+            <span class="text-[10px] uppercase font-bold text-stone-500 block">Marceneiro Responsável</span>
+            <strong class="text-sm text-oak-900">${escapeHtml(p.carpenter || 'A definir')}</strong>
+          </div>
+          <div class="border border-stone-300 rounded-lg p-3">
+            <span class="text-[10px] uppercase font-bold text-stone-500 block">Metragem / Prazo / Status</span>
+            <strong class="text-sm text-oak-900">${formatNumber(p.area)} ${escapeHtml(p.unit || 'm²')} • ${p.deadlineDays || 20} dias úteis • ${escapeHtml(p.status)}</strong>
+          </div>
+        </div>
+
+        ${extrasRows}
+
+        <div class="mt-6 border border-stone-300 rounded-lg p-4 space-y-2 text-xs">
+          <h3 class="font-bold uppercase tracking-wider text-stone-600 mb-2">Resumo de Custos &amp; Orçamento</h3>
+          <div class="flex justify-between"><span>Materiais &amp; Insumos:</span><strong>${formatBRL(p.materialsCost)}</strong></div>
+          <div class="flex justify-between"><span>Mão de Obra do Marceneiro (${escapeHtml(p.laborModeLabel || 'Técnica')}):</span><strong>${formatBRL(p.laborCost)}</strong></div>
+          <div class="flex justify-between"><span>Montagem / Frete:</span><strong>${formatBRL(p.shippingCost || 0)}</strong></div>
+          ${p.marginValue ? `<div class="flex justify-between"><span>Margem Empresarial / Despesas Fixas (${formatNumber(p.marginPct || 0, 1)}%):</span><strong>${formatBRL(p.marginValue)}</strong></div>` : ''}
+          <div class="flex justify-between text-base font-extrabold pt-2 border-t border-stone-300">
+            <span>VALOR TOTAL DO PROJETO</span>
+            <span>${formatBRL(p.totalValue)}</span>
+          </div>
+        </div>
+
+        <div class="mt-6 border border-stone-300 rounded-lg p-4 text-xs">
+          <span class="text-[10px] uppercase font-bold text-stone-500 block mb-1">Observações Técnicas de Produção</span>
+          <p class="leading-relaxed">${escapeHtml(p.notes || 'Nenhuma observação registrada.')}</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-12 mt-14 pt-6 text-center text-xs">
+          <div class="border-t border-stone-400 pt-2">Responsável Técnico — UNIQUE AMBIENTES</div>
+          <div class="border-t border-stone-400 pt-2">Marceneiro / Conferência de Produção</div>
+        </div>
+      `;
+
+      setTimeout(() => window.print(), 100);
+    }
+
+    /* =====================================================================
+     * MÓDULO 4: ALMOXARIFADO & FERRAMENTAS (CRUD + MOVIMENTAÇÕES + HISTÓRICO)
+     * ===================================================================== */
+    function switchWarehouseSubtab(subtab) {
+      uiState.warehouseSubtab = subtab;
+      const btnItens = document.getElementById('subtab-btn-itens');
+      const btnHist = document.getElementById('subtab-btn-historico');
+      const viewItens = document.getElementById('warehouse-view-itens');
+      const viewHist = document.getElementById('warehouse-view-historico');
+
+      if (subtab === 'itens') {
+        btnItens.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-oak-900 text-white';
+        btnHist.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-stone-600 hover:text-oak-900';
+        viewItens.classList.remove('hidden');
+        viewHist.classList.add('hidden');
+      } else {
+        btnHist.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-oak-900 text-white';
+        btnItens.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-stone-600 hover:text-oak-900';
+        viewHist.classList.remove('hidden');
+        viewItens.classList.add('hidden');
+        renderMovements();
+      }
+    }
+
+    function setInventoryCategory(cat) {
+      uiState.inventoryCategory = cat;
+      renderInventory();
+    }
+
+    function getInventoryStatusBadge(item) {
+      const low = isLowStock(item);
+      const statusMap = {
+        'Disponível': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Em Uso / Em Obra': 'bg-amber-50 text-amber-800 border-amber-300',
+        'Em Manutenção': 'bg-red-50 text-red-700 border-red-200'
+      };
+      const cls = statusMap[item.status] || statusMap['Disponível'];
+      return `
+        <div class="flex flex-col items-start gap-1">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${cls}">${escapeHtml(item.status)}</span>
+          ${low ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 text-white">Estoque Baixo</span>` : ''}
+        </div>
+      `;
+    }
+
+    function getMovementTypeBadge(type) {
+      const map = {
+        'Entrada': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Saída/Retirada': 'bg-amber-50 text-amber-800 border-amber-300',
+        'Cadastro': 'bg-blue-50 text-blue-700 border-blue-200',
+        'Edição': 'bg-stone-100 text-stone-700 border-stone-300',
+        'Exclusão': 'bg-red-50 text-red-700 border-red-200'
+      };
+      const cls = map[type] || map['Edição'];
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${cls}">${escapeHtml(type)}</span>`;
+    }
+
+    function renderInventory() {
+      // Atualiza estilo dos botões de categoria
+      document.querySelectorAll('.icat-btn').forEach(btn => {
+        const active = btn.getAttribute('data-icat') === uiState.inventoryCategory;
+        if (active) {
+          btn.classList.add('bg-oak-900', 'text-white');
+          btn.classList.remove('bg-stone-100', 'text-stone-600', 'hover:bg-stone-200');
+        } else {
+          btn.classList.remove('bg-oak-900', 'text-white');
+          btn.classList.add('bg-stone-100', 'text-stone-600', 'hover:bg-stone-200');
+        }
+      });
+
+      const query = (document.getElementById('inv-search')?.value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('inv-status-filter')?.value || 'Todos';
+
+      const filtered = appData.inventory.filter(item => {
+        const matchCat = uiState.inventoryCategory === 'Todos' || item.category === uiState.inventoryCategory;
+        const matchStatus =
+          statusFilter === 'Todos' ||
+          (statusFilter === 'Estoque Baixo' ? isLowStock(item) : item.status === statusFilter);
+        const matchQuery = !query ||
+          item.name.toLowerCase().includes(query) ||
+          item.code.toLowerCase().includes(query) ||
+          (item.brand || '').toLowerCase().includes(query) ||
+          (item.location || '').toLowerCase().includes(query);
+        return matchCat && matchStatus && matchQuery;
+      });
+
+      const tbody = document.getElementById('inventory-tbody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-10 text-center text-xs text-stone-400">Nenhum equipamento ou item encontrado com os filtros atuais.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr class="hover:bg-stone-50/70 transition-colors">
+          <td class="px-4 py-3.5">
+            <div class="flex items-start gap-2.5">
+              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded-md bg-stone-100 text-oak-900 border border-stone-200 shrink-0 mt-0.5">${escapeHtml(item.code)}</span>
+              <div>
+                <p class="font-bold text-oak-900 leading-snug">${escapeHtml(item.name)}</p>
+                <p class="text-xs text-stone-500">${escapeHtml(item.brand || 'Marca não informada')} ${item.acquisitionDate ? `• Aquisição: ${formatDateOnly(item.acquisitionDate)}` : ''}</p>
+                ${item.notes ? `<p class="text-[11px] text-stone-400 mt-0.5 max-w-md">${escapeHtml(item.notes)}</p>` : ''}
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3.5">
+            <span class="text-xs font-semibold text-stone-700">${escapeHtml(item.category)}</span>
+          </td>
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            <span class="text-base font-extrabold ${isLowStock(item) ? 'text-red-600' : 'text-oak-900'}">${item.qty}</span>
+            <span class="text-xs text-stone-500">${escapeHtml(item.unit)}</span>
+            <span class="block text-[11px] text-stone-400">Mín.: ${item.minQty} ${escapeHtml(item.unit)}</span>
+          </td>
+          <td class="px-4 py-3.5 whitespace-nowrap">
+            ${getInventoryStatusBadge(item)}
+          </td>
+          <td class="px-4 py-3.5">
+            <p class="text-xs font-medium text-stone-700 max-w-xs">${escapeHtml(item.location || 'Almoxarifado Central')}</p>
+          </td>
+          <td class="px-4 py-3.5">
+            <div class="flex items-center justify-end gap-1.5 flex-wrap">
+              <button type="button" onclick="openMovementModal('${item.id}', 'out')" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold transition-colors" title="Registrar retirada / saída">
+                Retirar (-)
+              </button>
+              <button type="button" onclick="openMovementModal('${item.id}', 'in')" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-colors" title="Registrar devolução / entrada">
+                Entrada (+)
+              </button>
+              <button type="button" onclick="openInventoryModal('${item.id}')" class="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-oak-900 text-xs font-semibold transition-colors">
+                Editar
+              </button>
+              <button type="button" onclick="askDeleteInventory('${item.id}')" class="px-2 py-1.5 rounded-lg bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-semibold transition-colors">
+                Excluir
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function generateNextCode() {
+      const seq = String(appData.nextCodeSeq || (appData.inventory.length + 1)).padStart(3, '0');
+      return `UNQ-${seq}`;
+    }
+
+    function openInventoryModal(id = null) {
+      const isEdit = Boolean(id);
+      const item = isEdit ? appData.inventory.find(i => i.id === id) : null;
+
+      document.getElementById('inv-modal-heading').textContent = isEdit ? `Editar Item (${item.code})` : 'Cadastrar Equipamento / Item';
+      document.getElementById('inv-id').value = isEdit ? item.id : '';
+      document.getElementById('inv-code').value = isEdit ? item.code : '';
+      document.getElementById('inv-code').placeholder = `Auto (ex: ${generateNextCode()})`;
+      document.getElementById('inv-name').value = isEdit ? item.name : '';
+      document.getElementById('inv-category').value = isEdit ? item.category : 'Ferramenta Elétrica';
+      document.getElementById('inv-brand').value = isEdit ? (item.brand || '') : '';
+      document.getElementById('inv-qty').value = isEdit ? item.qty : 1;
+      document.getElementById('inv-min-qty').value = isEdit ? item.minQty : 1;
+      document.getElementById('inv-unit').value = isEdit ? item.unit : 'Un';
+      document.getElementById('inv-status').value = isEdit ? item.status : 'Disponível';
+      document.getElementById('inv-location').value = isEdit ? (item.location || '') : 'Almoxarifado Central';
+      document.getElementById('inv-acq-date').value = isEdit ? (item.acquisitionDate || '') : new Date().toISOString().slice(0, 10);
+      document.getElementById('inv-notes').value = isEdit ? (item.notes || '') : '';
+
+      openModal('modal-inventory');
+    }
+
+    function logMovement({ code, itemName, type, qty, responsible, destination, note }) {
+      appData.movements.unshift({
+        id: 'MOV-' + Date.now().toString().slice(-6),
+        date: new Date().toISOString(),
+        code,
+        itemName,
+        type,
+        qty,
+        responsible: responsible || 'Gestão Interna',
+        destination: destination || '—',
+        note: note || ''
+      });
+    }
+
+    function saveInventoryItem(event) {
+      event.preventDefault();
+      const id = document.getElementById('inv-id').value;
+      const rawCode = document.getElementById('inv-code').value.trim().toUpperCase();
+      const name = document.getElementById('inv-name').value.trim();
+
+      if (!name) {
+        showToast('Informe o nome do equipamento ou item.', 'error');
+        return;
+      }
+
+      const payload = {
+        code: rawCode || (id ? '' : generateNextCode()),
+        name,
+        category: document.getElementById('inv-category').value,
+        brand: document.getElementById('inv-brand').value.trim(),
+        qty: Math.max(0, parseInt(document.getElementById('inv-qty').value, 10) || 0),
+        minQty: Math.max(0, parseInt(document.getElementById('inv-min-qty').value, 10) || 0),
+        unit: document.getElementById('inv-unit').value,
+        status: document.getElementById('inv-status').value,
+        location: document.getElementById('inv-location').value.trim() || 'Almoxarifado Central',
+        acquisitionDate: document.getElementById('inv-acq-date').value,
+        notes: document.getElementById('inv-notes').value.trim()
+      };
+
+      if (id) {
+        const idx = appData.inventory.findIndex(i => i.id === id);
+        if (idx !== -1) {
+          payload.code = rawCode || appData.inventory[idx].code;
+          appData.inventory[idx] = { ...appData.inventory[idx], ...payload };
+          logMovement({
+            code: payload.code,
+            itemName: payload.name,
+            type: 'Edição',
+            qty: payload.qty,
+            responsible: 'Gestão Interna',
+            destination: payload.location,
+            note: `Cadastro atualizado (Status: ${payload.status})`
+          });
+        }
+        showToast(`"${payload.name}" atualizado com sucesso!`);
+      } else {
+        if (!rawCode) appData.nextCodeSeq = (appData.nextCodeSeq || appData.inventory.length + 1) + 1;
+        appData.inventory.unshift({
+          id: 'INV-' + Date.now().toString().slice(-6),
+          ...payload
+        });
+        logMovement({
+          code: payload.code,
+          itemName: payload.name,
+          type: 'Cadastro',
+          qty: payload.qty,
+          responsible: 'Gestão Interna',
+          destination: payload.location,
+          note: `Novo item registrado (${payload.category})`
+        });
+        showToast(`Equipamento ${payload.code} cadastrado no almoxarifado!`);
+      }
+
+      saveData();
+      closeModal('modal-inventory');
+      refreshAllViews();
+    }
+
+    function openMovementModal(itemId, direction) {
+      const item = appData.inventory.find(i => i.id === itemId);
+      if (!item) return;
+
+      const isOut = direction === 'out';
+      document.getElementById('mov-item-id').value = itemId;
+      document.getElementById('mov-direction').value = direction;
+
+      document.getElementById('mov-modal-badge').textContent = isOut ? 'Saída / Retirada' : 'Entrada / Devolução';
+      document.getElementById('mov-modal-title').textContent = isOut ? 'Retirar Equipamento ou Insumo' : 'Registrar Devolução ou Entrada';
+      document.getElementById('mov-item-label').textContent = `${item.code} — ${item.name}`;
+      document.getElementById('mov-item-stock').textContent = `Estoque atual: ${item.qty} ${item.unit} • Status atual: ${item.status}`;
+
+      const qtyInput = document.getElementById('mov-qty');
+      qtyInput.value = 1;
+      qtyInput.max = isOut ? Math.max(1, item.qty) : '';
+
+      document.getElementById('mov-responsible').value = '';
+      document.getElementById('mov-destination').value = isOut ? '' : 'Almoxarifado Central';
+      document.getElementById('mov-new-status').value = isOut
+        ? (item.category === 'Insumos & Ferragens' ? item.status : 'Em Uso / Em Obra')
+        : 'Disponível';
+      document.getElementById('mov-note').value = '';
+
+      const submitBtn = document.getElementById('mov-submit-btn');
+      submitBtn.textContent = isOut ? 'Confirmar Retirada' : 'Confirmar Entrada';
+      submitBtn.className = isOut
+        ? 'px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold'
+        : 'px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold';
+
+      openModal('modal-movement');
+    }
+
+    function confirmMovement(event) {
+      event.preventDefault();
+      const itemId = document.getElementById('mov-item-id').value;
+      const direction = document.getElementById('mov-direction').value;
+      const qty = parseInt(document.getElementById('mov-qty').value, 10) || 0;
+      const responsible = document.getElementById('mov-responsible').value.trim();
+      const destination = document.getElementById('mov-destination').value.trim();
+      const newStatus = document.getElementById('mov-new-status').value;
+      const note = document.getElementById('mov-note').value.trim();
+
+      const item = appData.inventory.find(i => i.id === itemId);
+      if (!item || qty <= 0) return;
+
+      if (direction === 'out') {
+        if (qty > item.qty) {
+          showToast(`Quantidade indisponível! Estoque atual: ${item.qty} ${item.unit}.`, 'error');
+          return;
+        }
+        item.qty -= qty;
+        item.status = newStatus;
+        if (destination) item.location = `${destination} — ${responsible}`;
+        logMovement({
+          code: item.code,
+          itemName: item.name,
+          type: 'Saída/Retirada',
+          qty,
+          responsible,
+          destination: destination || 'Obra / Produção',
+          note: note || 'Retirada registrada no almoxarifado'
+        });
+        showToast(`Retirada de ${qty} ${item.unit} de "${item.name}" registrada.`);
+      } else {
+        item.qty += qty;
+        item.status = newStatus;
+        if (destination) item.location = destination;
+        logMovement({
+          code: item.code,
+          itemName: item.name,
+          type: 'Entrada',
+          qty,
+          responsible,
+          destination: destination || 'Almoxarifado Central',
+          note: note || 'Entrada / devolução registrada'
+        });
+        showToast(`Entrada de ${qty} ${item.unit} em "${item.name}" registrada.`);
+      }
+
+      saveData();
+      closeModal('modal-movement');
+      refreshAllViews();
+    }
+
+    function askDeleteInventory(id) {
+      const item = appData.inventory.find(i => i.id === id);
+      if (!item) return;
+      askConfirmation(
+        'Excluir Equipamento / Item',
+        `Deseja excluir permanentemente "${item.code} - ${item.name}" do almoxarifado? A exclusão ficará registrada no histórico.`,
+        () => {
+          appData.inventory = appData.inventory.filter(i => i.id !== id);
+          logMovement({
+            code: item.code,
+            itemName: item.name,
+            type: 'Exclusão',
+            qty: item.qty,
+            responsible: 'Gestão Interna',
+            destination: item.location,
+            note: 'Registro excluído do almoxarifado'
+          });
+          saveData();
+          refreshAllViews();
+          showToast(`Item ${item.code} excluído.`, 'warning');
+        }
+      );
+    }
+
+    function renderMovements() {
+      const query = (document.getElementById('mov-search')?.value || '').trim().toLowerCase();
+      const typeFilter = document.getElementById('mov-type-filter')?.value || 'Todos';
+
+      const filtered = appData.movements.filter(m => {
+        const matchType = typeFilter === 'Todos' || m.type === typeFilter;
+        const matchQuery = !query ||
+          m.itemName.toLowerCase().includes(query) ||
+          m.code.toLowerCase().includes(query) ||
+          (m.responsible || '').toLowerCase().includes(query) ||
+          (m.destination || '').toLowerCase().includes(query) ||
+          (m.note || '').toLowerCase().includes(query);
+        return matchType && matchQuery;
+      });
+
+      const tbody = document.getElementById('movements-tbody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-10 text-center text-xs text-stone-400">Nenhuma movimentação encontrada.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(m => `
+        <tr class="hover:bg-stone-50/70">
+          <td class="px-4 py-3 whitespace-nowrap text-stone-500 text-xs">${formatDateTime(m.date)}</td>
+          <td class="px-4 py-3 whitespace-nowrap font-mono text-xs font-bold text-oak-900">${escapeHtml(m.code)}</td>
+          <td class="px-4 py-3 font-semibold text-oak-900">${escapeHtml(m.itemName)}</td>
+          <td class="px-4 py-3 whitespace-nowrap">${getMovementTypeBadge(m.type)}</td>
+          <td class="px-4 py-3 whitespace-nowrap font-bold text-oak-900">${m.qty}</td>
+          <td class="px-4 py-3 text-xs text-stone-700">
+            <span class="font-semibold block">${escapeHtml(m.responsible)}</span>
+            <span class="text-stone-400">${escapeHtml(m.destination || '—')}</span>
+          </td>
+          <td class="px-4 py-3 text-xs text-stone-500 max-w-xs">${escapeHtml(m.note || '—')}</td>
+        </tr>
+      `).join('');
+    }
+
+    /* =====================================================================
+     * INICIALIZAÇÃO DO SISTEMA
+     * ===================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Botão do modal de confirmação
+      document.getElementById('confirm-action-btn').addEventListener('click', () => {
+        const cb = uiState.confirmCallback;
+        uiState.confirmCallback = null;
+        closeModal('modal-confirm');
+        if (typeof cb === 'function') cb();
+      });
+
+      // Fechar modais clicando fora ou pressionando ESC
+      document.querySelectorAll('.modal-backdrop').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal(modal.id);
+        });
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          document.querySelectorAll('.modal-backdrop').forEach(m => {
+            if (!m.classList.contains('hidden')) closeModal(m.id);
+          });
+        }
+      });
+
+      // Inicializa calculadora e módulos
+      renderExtraMaterialRows();
+      setAreaMode('dimensoes');
+      setLaborMode('m2');
+      recalculateBudget();
+      switchTab('dashboard');
+    });
+  </script>
+</body>
+</html>
